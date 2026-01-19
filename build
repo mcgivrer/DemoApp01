@@ -40,18 +40,28 @@ NC='\033[0m'
 #---- process buid
 GIT_COMMIT_ID=$(git rev-parse HEAD)
 JAVA_BUILD=$(java --version | head -1 | cut -f2 -d' ')
-#---- check SDKMAN
-# Ensure the `sdk` command is available by sourcing SDKMAN init if installed
-if [ -z "$(command -v sdk 2>/dev/null)" ] && [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
-  # shellcheck source=/dev/null
-  source "$HOME/.sdkman/bin/sdkman-init.sh"  
-  if [ -f .sdkmanrc ]; then
-    echo "Install SDKMAN environment"
-    sdk env install
-    sdk env use
-    echo "done."
+#---- check JAVA version before SDKMAN
+REQUIRED_JAVA_VERSION=$SOURCE_VERSION
+JAVA_BIN=$(command -v java 2>/dev/null)
+JAVA_VERSION_DETECTED=$($JAVA_BIN -version 2>&1 | awk -F '[\"_]' '/version/ {print $2}' | cut -d'.' -f1)
+if [ -z "$JAVA_BIN" ] || [ "$JAVA_VERSION_DETECTED" != "$REQUIRED_JAVA_VERSION" ]; then
+  echo -e "${RED}Java n'est pas installé. Tentative d'installation de Java $REQUIRED_JAVA_VERSION avec SDKMAN.${NC}"
+  # Ensure the `sdk` command is available by sourcing SDKMAN init if installed
+  if [ -z "$(command -v sdk 2>/dev/null)" ] && [ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
+    # shellcheck source=/dev/null
+    source "$HOME/.sdkman/bin/sdkman-init.sh"  
+    if [ -f .sdkmanrc ]; then
+      echo "Install SDKMAN environment"
+      sdk env install
+      sdk env use
+      echo "done."
+    fi
   fi
+else
+  echo -e "${GREEN}Java détecté: version $JAVA_VERSION_DETECTED${NC}"
 fi
+#---- check SDKMAN
+
 # Prepare Build
 rm -vrf target/
 find $SRC/main/java $RESOURCES -name "*.java"

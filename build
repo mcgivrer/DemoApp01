@@ -95,7 +95,7 @@ Implementation-Author: ${author_name}
   echo "create run script ${project_name}.sh ..."
   rm -f ${project_name}.sh 
   echo """#!/bin/bash
-java -jar ${TARGET}/build/${jar_name} \$@
+java -cp ${JARS// /,} -jar ${TARGET}/build/${jar_name} \$@
 """ >${project_name}.sh
   chmod +x ${project_name}.sh
   echo "done."

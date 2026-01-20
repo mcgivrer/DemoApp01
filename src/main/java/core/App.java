@@ -3,65 +3,143 @@ package core;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
-public class App {
-    public enum DebugLevel {
-        DEBUG,
-        INFO,
-        WARN,
-        ERROR,
-        FATAL;
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferStrategy;
+
+public class App implements Runnable, KeyListener {
+    public enum LogLevel {
+        DEBUG, INFO, WARN, ERROR, FATAL;
     }
 
     public enum AppMode {
-        DEVELOPMENT,
-        TESTING,
-        PRODUCTION;
-
+        DEVELOPMENT, TESTING, PRODUCTION;
     }
 
+    public static ResourceBundle messages = ResourceBundle.getBundle("i18n/messages");
     private Properties config = new Properties();
+
     public static int debug = 0;
     private static AppMode mode = AppMode.DEVELOPMENT;
     private static int timeout = 1000; // in milliseconds
+    private Dimension winSize = new Dimension(800, 600);
+
+    private JFrame mainWindow;
+    private boolean[] keys = new boolean[1024];
+    Thread appThread;
+    private boolean exit = false;
 
     public App() {
-        log(getClass(), DebugLevel.INFO, "Start App class...");
+        log(getClass(), LogLevel.INFO, "Start App class...");
     }
 
     public void run(String[] args) {
         initialize(args);
-        try {
-            log(getClass(), DebugLevel.INFO, "Sleeping for %d ms...", timeout);
-            Thread.sleep(timeout);
-            log(getClass(), DebugLevel.INFO, "Execution completed after timeout.");
-        } catch (InterruptedException e) {
-            log(getClass(), DebugLevel.WARN, "Execution interrupted.");
-        }
-        log(getClass(), DebugLevel.INFO, "End App class.");
+
     }
 
     private void initialize(String[] args) {
         // set default values
-        log(getClass(), DebugLevel.INFO, "Set default configuration");
+        log(getClass(), LogLevel.INFO, "Set default configuration");
         config.setProperty("debug", "0");
         config.setProperty("mode", "DEVELOPMENT");
         config.setProperty("timeout", "1000");
         parseConfiguration();
-        log(App.class, DebugLevel.INFO, "  -> default configuration initialized");
+        log(App.class, LogLevel.INFO, "  -> default configuration initialized");
         // parse configuration file
         try {
-            log(getClass(), DebugLevel.INFO, "Load configuration from file");
+            log(getClass(), LogLevel.INFO, "Load configuration from file");
             config.load(App.class.getResourceAsStream("/config.properties"));
-            log(App.class, DebugLevel.INFO, "  loaded config.properties");
+            log(App.class, LogLevel.INFO, "  loaded config.properties");
             parseConfiguration();
-            log(App.class, DebugLevel.INFO, "  -> configuration loaded");
+            log(App.class, LogLevel.INFO, "  -> configuration loaded");
         } catch (IOException e) {
-            log(App.class, DebugLevel.ERROR, "  cannot load config.properties: %s", e.getMessage());
+            log(App.class, LogLevel.ERROR, "  cannot load config.properties: %s", e.getMessage());
         }
         // parse command line arguments
         parseCliArgs(args);
         parseConfiguration();
+        log(App.class, LogLevel.INFO, "  -> configuration from args parsed");
+        // start application thread
+        appThread = new Thread(this);
+        appThread.start();
+    }
+
+    @Override
+    public void run() {
+        createWindow();
+        loop();
+        dispose();
+        log(getClass(), LogLevel.INFO, "End App class.");
+        System.exit(0);
+    }
+
+    private void createWindow() {
+        mainWindow = new JFrame(
+                String.format(messages.getString("app.title"), messages.getString("app.name"), mode.name()));
+        mainWindow.setLocationRelativeTo(null);
+        mainWindow.setPreferredSize(winSize);
+        mainWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        mainWindow.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                exit = true;
+            }
+        });
+        mainWindow.addKeyListener(this);
+        mainWindow.pack();
+        mainWindow.setVisible(true);
+        mainWindow.createBufferStrategy(3);
+        mainWindow.requestFocusInWindow();
+    }
+
+    private void loop() {
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime;
+        long elapsed = 0;
+        int FPS = 60;
+        do {
+            // Main application loop logic goes here
+            startTime = endTime;
+            update(elapsed);
+            draw(elapsed);
+            try {
+                Thread.sleep(((FPS / 1000) - elapsed > 0) ? (FPS / 1000) - elapsed : 1);
+            } catch (InterruptedException e) {
+                log(App.class, LogLevel.ERROR, "  application loop interrupted: %s", e.getMessage());
+            }
+            endTime = System.currentTimeMillis();
+            elapsed = endTime - startTime;
+        } while (!exit);
+    }
+
+    private void update(long elapsed) {
+
+    }
+
+    private void draw(long elapsed) {
+        if (mainWindow.isActive() && mainWindow.isDisplayable()) {
+            BufferStrategy bs = mainWindow.getBufferStrategy();
+            Graphics2D g = (Graphics2D) bs.getDrawGraphics();
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, winSize.width, winSize.height);
+
+            g.setColor(Color.WHITE);
+            g.drawString("App running in " + mode.name() + " mode.", 20, 100);
+
+            g.dispose();
+            bs.show();
+        }
     }
 
     private void parseConfiguration() {
@@ -72,14 +150,14 @@ public class App {
 
     private void parseCliArgs(String[] args) {
         if (args.length > 0) {
-            log(getClass(), DebugLevel.INFO, "parse args:");
+            log(getClass(), LogLevel.INFO, "parse args:");
             int i = 0;
             for (String arg : args) {
-                log(getClass(), DebugLevel.INFO, "- arg[%d]: %s", i++, arg);
+                log(getClass(), LogLevel.INFO, "- arg[%d]: %s", i++, arg);
                 parseArg(arg);
             }
         } else {
-            log(getClass(), DebugLevel.INFO, "- no argument...");
+            log(getClass(), LogLevel.INFO, "- no argument...");
         }
     }
 
@@ -95,32 +173,43 @@ public class App {
     private void parseConfig(String key, String value) {
         // first is config key.value, then last possible cli key args.
         switch (key.toLowerCase().trim()) {
-            // set debug level from config file or CLI key-value pair
-            case "debug" -> {
-                debug = Integer.parseInt(value);
-                log(getClass(), DebugLevel.INFO, "  set debug level to %d", debug);
+        // set debug level from config file or CLI key-value pair
+        case "debug" -> {
+            debug = Integer.parseInt(value);
+            log(getClass(), LogLevel.INFO, "  set debug level to %d", debug);
+        }
+        case "mode" -> {
+            mode = AppMode.valueOf(value.toUpperCase());
+            log(getClass(), LogLevel.INFO, "  set app mode to %s", value);
+        }
+        case "timeout" -> {
+            timeout = Integer.parseInt(value);
+            log(getClass(), LogLevel.INFO, "  set app timeout to %d ms", timeout);
+        }
+        case "winsize" -> {
+            String[] dims = value.toLowerCase().split("x");
+            if (dims.length == 2) {
+                int width = Integer.parseInt(dims[0].trim());
+                int height = Integer.parseInt(dims[1].trim());
+                winSize = new Dimension(width, height);
+                log(getClass(), LogLevel.INFO, "  set window size to %dx%d", width, height);
+            } else {
+                log(getClass(), LogLevel.WARN, "  invalid window size format: %s", value);
             }
-            case "mode" -> {
-                mode = AppMode.valueOf(value.toUpperCase());
-                log(getClass(), DebugLevel.INFO, "  set app mode to %s", value);
-            }
-            case "timeout" -> {
-                timeout = Integer.parseInt(value);
-                log(getClass(), DebugLevel.INFO, "  set app timeout to %d ms", timeout);
-            }
-            case "h", "-h", "help", "-help" -> {
-                log(getClass(), DebugLevel.INFO, "  help requested, exiting...");
-                System.out.println("Usage: java -jar app.jar [key=value]...\n" +
-                        "Available options:\n" +
-                        "  debug=<level>       Set debug level (0=none, 1=some, 2=verbose)\n" +
-                        "  mode=<mode>         Set application mode (DEVELOPMENT, TESTING, PRODUCTION)\n" +
-                        "  timeout=<ms>        Set application timeout in milliseconds\n" +
-                        "  help                Show this help message");
-                System.exit(0);
-            }
-            default -> {
-                log(getClass(), DebugLevel.WARN, "  unknown argument: %s=%s", key, value);
-            }
+        }
+        case "h", "-h", "help", "-help" -> {
+            log(getClass(), LogLevel.INFO, "  help requested, exiting...");
+            System.out.println("Usage: java -jar app.jar [key=value]...\n" + "Available options:\n"
+                    + "  debug=<level>       Set debug level (0=none, 1=some, 2=verbose)\n"
+                    + "  mode=<mode>         Set application mode (DEVELOPMENT, TESTING, PRODUCTION)\n"
+                    + "  timeout=<ms>        Set application timeout in milliseconds\n"
+                    + "  winsize=<WxH>       Set window size (e.g., 800x600)\n"
+                    + "  help                Show this help message");
+            System.exit(0);
+        }
+        default -> {
+            log(getClass(), LogLevel.WARN, "  unknown argument: %s=%s", key, value);
+        }
         }
     }
 
@@ -129,12 +218,45 @@ public class App {
         app.run(args);
     }
 
-    public static void log(Class<?> cls, DebugLevel level, String message, Object... args) {
-        System.out.printf("%s;%s;[%s];%s%n",
-                ZonedDateTime.now(),
-                cls.getCanonicalName(),
-                level.name(),
+    public static void log(Class<?> cls, LogLevel level, String message, Object... args) {
+        System.out.printf("%s;%s;[%s];%s%n", ZonedDateTime.now(), cls.getCanonicalName(), level.name(),
                 message.formatted(args));
     }
-}
 
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // N/A
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+        if (keyCode >= 0 && keyCode < keys.length) {
+            keys[keyCode] = true;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+        if (keyCode >= 0 && keyCode < keys.length) {
+            keys[keyCode] = false;
+        }
+        switch (keyCode) {
+        case KeyEvent.VK_ESCAPE -> {
+            log(getClass(), LogLevel.INFO, "Escape key pressed. Exiting application.");
+            exit = true;
+        }
+        default -> {
+            // N/A
+        }
+        }
+    }
+
+    private void dispose() {
+        if (mainWindow != null) {
+            mainWindow.dispose();
+        }
+    }
+
+}

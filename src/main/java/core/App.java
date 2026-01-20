@@ -2,6 +2,8 @@ package core;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -104,39 +106,55 @@ public class App implements Runnable, KeyListener {
     }
 
     private void loop() {
-        long startTime = System.currentTimeMillis();
+        long startTime = System.nanoTime();
         long endTime = startTime;
         long elapsed = 0;
+        long timeFrame = 0, frameCount = 0, internalTime = 0;
         int FPS = 60;
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("fps", FPS);
         do {
             // Main application loop logic goes here
             startTime = endTime;
-            update(elapsed);
-            draw(elapsed);
+            update(elapsed / 1_000_000_000, stats);
+            draw(elapsed / 1_000_000_000, stats);
+            frameCount++;
+            timeFrame += elapsed;
+            internalTime += elapsed;
+            stats.put("time", internalTime / 1_000_000);
+            if (timeFrame >= 1_000_000_000) {
+                stats.put("fps", frameCount);
+                frameCount = 0;
+                timeFrame = 0;
+            }
             try {
-                Thread.sleep(((FPS / 1000) - elapsed > 0) ? (FPS / 1000) - elapsed : 1);
+                Thread.sleep((int) (((FPS / 1_000_000f) - (elapsed) > 0) ? (FPS / 1_000_000f) - (elapsed) : 1f));
             } catch (InterruptedException e) {
                 log(App.class, LogLevel.ERROR, "  application loop interrupted: %s", e.getMessage());
             }
-            endTime = System.currentTimeMillis();
+            endTime = System.nanoTime();
             elapsed = endTime - startTime;
         } while (!exit);
     }
 
-    private void update(long elapsed) {
+    private void update(long elapsed, Map<String, Object> stats) {
 
     }
 
-    private void draw(long elapsed) {
+    private void draw(long elapsed, Map<String, Object> stats) {
         if (mainWindow.isActive() && mainWindow.isDisplayable()) {
             BufferStrategy bs = mainWindow.getBufferStrategy();
             Graphics2D g = (Graphics2D) bs.getDrawGraphics();
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, winSize.width, winSize.height);
 
-            g.setColor(Color.WHITE);
-            g.drawString("App running in " + mode.name() + " mode.", 20, 100);
-
+            if (debug > 0) {
+                g.setColor(new Color(0.3f, 0.1f, 0.0f, 0.7f));
+                g.fillRect(10, mainWindow.getHeight() - 30, mainWindow.getWidth(), 30);
+                g.setColor(Color.ORANGE);
+                g.drawString(String.format("{ deb:%d | mode: %s | fps: %d | time: %d }", debug, mode.name(),
+                        stats.get("fps"), stats.get("time")), 20, mainWindow.getHeight() - 14);
+            }
             g.dispose();
             bs.show();
         }

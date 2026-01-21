@@ -10,6 +10,8 @@ import java.awt.Stroke;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -17,9 +19,9 @@ import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 import core.App;
+import core.App.AppMode;
 import core.entity.Entity;
 import core.entity.GameObject;
-import core.physics.PhysicsEngine;
 import core.scene.Scene;
 import core.utils.InputHandler;
 import core.utils.Service;
@@ -28,6 +30,8 @@ public class Renderer extends Service {
     private App app;
     private JFrame window;
     private InputHandler inputHandler;
+
+    private List<RenderPlugin<? extends Entity>> renderPlugins = new ArrayList<>();
 
     public Renderer(App app, InputHandler inputHandler) {
         super(app);
@@ -61,7 +65,14 @@ public class Renderer extends Service {
         window.createBufferStrategy(3);
         window.requestFocusInWindow();
 
+        registerPlugin(new GameObjectRenderPlugin());
+        registerPlugin(new WorldRenderPlugin());
+
         log(Renderer.class, App.LogLevel.INFO, "Renderer initialized.");
+    }
+
+    private void registerPlugin(RenderPlugin<? extends Entity<?>> renderPlugin) {
+        renderPlugins.add(renderPlugin);
     }
 
     @Override
@@ -82,15 +93,16 @@ public class Renderer extends Service {
                     drawEntity(g, entity); // Draw each entity
                 });
 
-                // update stats
-                stats.put("rendered.entities", scene.entities.size());
-
-                if (App.debug > 0) {
+                if (App.mode.equals(AppMode.DEVELOPMENT) && App.debug > 0) {
+                    // Update stats
+                    stats.put("rendered.entities", scene.entities.size());
+                    // Draw debug info
                     g.setColor(new Color(0.3f, 0.1f, 0.0f, 0.7f));
-                    g.fillRect(10, window.getHeight() - 30, window.getWidth(), 30);
+                    g.fillRect(0, window.getHeight() - 30, window.getWidth(), 30);
+
                     g.setColor(Color.ORANGE);
-                    g.drawString(String.format("{ dbg:%d | mode: %s | fps: %d | time: %d }", App.debug, App.mode.name(),
-                            stats.get("fps"), stats.get("time")), 20, window.getHeight() - 14);
+                    g.drawString(String.format("{ dbg:%d | mode: %s | fps: %d | time: %f | count: %d}", App.debug, App.mode.name(),
+                            stats.get("fps"), stats.get("time"), stats.get("rendered.entities")), 20, window.getHeight() - 14);
                 }
 
                 // finalize rendering
@@ -102,27 +114,13 @@ public class Renderer extends Service {
     }
 
     private void drawEntity(Graphics2D g, Entity<?> entity) {
-        if (entity instanceof GameObject go) {
-            if (go.getSprite() != null) {
-                g.drawImage(go.getSprite(), (int) entity.getX(), (int) entity.getY(), (int) entity.getWidth(),
-                        (int) entity.getHeight(), null);
-                return;
-            } else {
-                g.setColor(go.getFillColor());
-                g.fillRect((int) (int) entity.getX(), (int) entity.getY(), (int) entity.getWidth(),
-                        (int) entity.getHeight());
-                g.setColor(go.getEdgeColor());
-                g.drawRect((int) (int) entity.getX(), (int) entity.getY(), (int) entity.getWidth(),
-                        (int) entity.getHeight());
-            }
-        } else {
-            g.setColor(Color.ORANGE);
-            Stroke bk = g.getStroke();
-            g.setStroke(new BasicStroke(0.5f));
-            g.drawRect((int) (int) entity.getX(), (int) entity.getY(), (int) entity.getWidth(),
-                    (int) entity.getHeight());
-            g.setStroke(bk);
-        }
+        renderPlugins.stream().filter(plugin -> plugin.getSupportedEntityType().isAssignableFrom(entity.getClass()))
+                .findFirst().ifPresent(plugin -> {
+                    // Safe to cast because of the isAssignableFrom check
+                    @SuppressWarnings("unchecked")
+                    RenderPlugin<Entity<?>> castedPlugin = (RenderPlugin<Entity<?>>) plugin;
+                    castedPlugin.render(entity, g);
+                });
     }
 
     public JFrame getWindow() {

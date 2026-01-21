@@ -94,4 +94,14 @@ public class Entity<T> {
     public boolean isVisible() {
         return visible;
     }
+
+    public T setVx(float f) {
+        this.vx = f;
+        return (T) this;
+    }
+
+    public T setVy(float f) {
+        this.vy = f;
+        return (T) this;
+    }
 }

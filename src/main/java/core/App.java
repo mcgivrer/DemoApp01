@@ -12,9 +12,8 @@ import core.physics.PhysicsEngine;
 import core.scene.Scene;
 import core.utils.InputHandler;
 import core.utils.Service;
-import demo.scenes.DemoScene;
 
-public class App implements Runnable {
+public class App {
     public enum LogLevel {
         DEBUG, INFO, WARN, ERROR, FATAL;
     }
@@ -30,12 +29,11 @@ public class App implements Runnable {
     public static AppMode mode = AppMode.DEVELOPMENT;
     private static int timeout = 1000; // in milliseconds
 
-    Thread appThread;
     public static boolean exit = false;
 
     private PhysicsEngine physicsEngine;
     private Renderer renderer;
-    private InputHandler inputHandler;
+    public InputHandler inputHandler;
 
     public App() {
         log(getClass(), LogLevel.INFO, "Start App class...");
@@ -54,10 +52,7 @@ public class App implements Runnable {
 
         // initialize scenes
         Scene.initialize(config);
-
-        // start application thread
-        appThread = new Thread(this);
-        appThread.start();
+        run();
     }
 
     private void initialize(String[] args) {
@@ -84,7 +79,6 @@ public class App implements Runnable {
         log(App.class, LogLevel.INFO, "  -> configuration from args parsed");
     }
 
-    @Override
     public void run() {
         String defaultSceneName = config.getProperty("defaultscene", "demo");
         Scene.activate(this, defaultSceneName);
@@ -107,20 +101,21 @@ public class App implements Runnable {
             // Main application loop logic goes here
             startTime = endTime;
             for (int i = 0; i < 5; i++) {
-                update(elapsed / (5 * 1_000_000_000), stats);
+                update(elapsed / (5 * 1_000_000_000f), stats);
             }
             draw(elapsed / 1_000_000_000, stats);
             frameCount++;
             timeFrame += elapsed;
             internalTime += elapsed;
-            stats.put("time", internalTime / 1_000_000);
-            if (timeFrame >= 1_000_000_000) {
+            stats.put("time", internalTime / 1_000_000_000f);
+            if (timeFrame >= 1_000_000_000f) {
                 stats.put("fps", frameCount);
                 frameCount = 0;
                 timeFrame = 0;
             }
             try {
-                Thread.sleep((int) (((FPS / 1_000_000f) - (elapsed) > 0) ? (FPS / 1_000_000f) - (elapsed) : 1f));
+                Thread.sleep(
+                        (int) (((FPS / 1_000_000_000) - (elapsed) > 0) ? (FPS / 1_000_000_000) - (elapsed) : 1f));
             } catch (InterruptedException e) {
                 log(App.class, LogLevel.ERROR, "  application loop interrupted: %s", e.getMessage());
             }
@@ -129,14 +124,14 @@ public class App implements Runnable {
         } while (!exit);
     }
 
-    private void update(long elapsed, Map<String, Object> stats) {
+    private void update(float elapsed, Map<String, Object> stats) {
         if (Scene.currentScene != null) {
             physicsEngine.update(Scene.currentScene, elapsed, stats);
         }
 
     }
 
-    private void draw(long elapsed, Map<String, Object> stats) {
+    private void draw(float elapsed, Map<String, Object> stats) {
         renderer.update(Scene.getActiveScene(), elapsed, stats);
 
     }
@@ -220,6 +215,10 @@ public class App implements Runnable {
     public static void requestExit() {
         log(App.class, LogLevel.INFO, "Request to exit");
         exit = true;
+    }
+
+    public InputHandler getInputHandler() {
+        return inputHandler;
     }
 
 }

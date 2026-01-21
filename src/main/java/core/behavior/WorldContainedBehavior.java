@@ -1,32 +1,30 @@
 package core.behavior;
 
 import core.entity.Entity;
+import core.entity.World;
 
 public class WorldContainedBehavior implements Behavior<Entity<?>> {
+    private World world;
 
-    private float worldWidth;
-    private float worldHeight;
-
-    public WorldContainedBehavior(float worldWidth, float worldHeight) {
-        this.worldWidth = worldWidth;
-        this.worldHeight = worldHeight;
+    public WorldContainedBehavior(World world) {
+        this.world = world;
     }
 
     @Override
     public void update(Entity<?> entity, float deltaTime) {
-        if (entity.x < 0) {
-            entity.x = 0;
+        if (entity.x < world.x) {
+            entity.x = world.x;
             entity.vx = 0;
-        } else if (entity.x + entity.width > worldWidth) {
-            entity.x = worldWidth - entity.width;
+        } else if (entity.x + entity.width > world.width + world.x) {
+            entity.x = world.width + world.x - entity.width;
             entity.vx = 0;
         }
 
-        if (entity.y < 0) {
-            entity.y = 0;
+        if (entity.y < world.y) {
+            entity.y = world.y;
             entity.vy = 0;
-        } else if (entity.y + entity.height > worldHeight) {
-            entity.y = worldHeight - entity.height;
+        } else if (entity.y + entity.height > world.height + world.y) {
+            entity.y = world.height + world.y - entity.height;
             entity.vy = 0;
         }
     }

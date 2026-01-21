@@ -21,9 +21,17 @@ public class InputHandler extends KeyAdapter {
         }
         keys[key.getKeyCode()] = false;
         switch (key.getKeyCode()) {
-            case KeyEvent.VK_ESCAPE -> App.requestExit();
-            default -> {
+        // Request exiting the application
+        case KeyEvent.VK_ESCAPE -> App.requestExit();
+        // debug level controls
+        case KeyEvent.VK_D -> {
+            if (App.mode.equals(App.AppMode.DEVELOPMENT) && key.isControlDown()) {
+                App.debug = App.debug + 1 < 10 ? App.debug + 1 : 0;
             }
+        }
+
+        default -> {
+        }
         }
     }
 

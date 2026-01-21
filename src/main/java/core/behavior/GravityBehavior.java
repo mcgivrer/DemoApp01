@@ -2,6 +2,14 @@ package core.behavior;
 
 import core.entity.Entity;
 
+/**
+ * Behavior that applies a gravitational force to an entity by modifying its
+ * vertical velocity (vy) over time. The gravity value determines the strength
+ * of the gravitational pull. This behavior is commonly used in physics
+ * simulations and games to simulate the effect of gravity on objects.
+ * 
+ * @see Entity
+ */
 public class GravityBehavior implements Behavior<Entity<?>> {
     public float gravity = 9.81f;
 
@@ -9,8 +17,9 @@ public class GravityBehavior implements Behavior<Entity<?>> {
         this.gravity = gravity;
     }
 
+    @Override
     public void update(Entity<?> entity, float deltaTime) {
-        entity.vy += gravity * deltaTime;
+        entity.vy += gravity * deltaTime * 1500f;
     }
 
 }

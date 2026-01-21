@@ -2,9 +2,11 @@ package core.scene;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import core.App;
 import core.entity.Entity;
+import demo.DemoScene;
 
 public class Scene extends Entity<Scene> {
 
@@ -62,5 +64,11 @@ public class Scene extends Entity<Scene> {
 
     public static Scene getActiveScene() {
         return currentScene;
+    }
+
+    public static void initialize(Properties config) {
+        scenes.clear();
+        // temporary loading of demo scenes
+        scenes.add(new DemoScene("demo"));
     }
 }

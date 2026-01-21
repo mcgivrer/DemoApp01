@@ -1,8 +1,12 @@
 package core.graphics;
 
+import static core.App.log;
+
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -15,6 +19,7 @@ import javax.swing.WindowConstants;
 import core.App;
 import core.entity.Entity;
 import core.entity.GameObject;
+import core.physics.PhysicsEngine;
 import core.scene.Scene;
 import core.utils.InputHandler;
 import core.utils.Service;
@@ -43,11 +48,11 @@ public class Renderer extends Service {
                 App.mode.name()));
         window.setLocationRelativeTo(null);
         window.setPreferredSize(winSize);
-        window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        window.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         window.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                app.requestExit();
+                App.requestExit();
             }
         });
         window.addKeyListener(inputHandler);
@@ -55,6 +60,8 @@ public class Renderer extends Service {
         window.setVisible(true);
         window.createBufferStrategy(3);
         window.requestFocusInWindow();
+
+        log(Renderer.class, App.LogLevel.INFO, "Renderer initialized.");
     }
 
     @Override
@@ -82,7 +89,7 @@ public class Renderer extends Service {
                     g.setColor(new Color(0.3f, 0.1f, 0.0f, 0.7f));
                     g.fillRect(10, window.getHeight() - 30, window.getWidth(), 30);
                     g.setColor(Color.ORANGE);
-                    g.drawString(String.format("{ deb:%d | mode: %s | fps: %d | time: %d }", App.debug, App.mode.name(),
+                    g.drawString(String.format("{ dbg:%d | mode: %s | fps: %d | time: %d }", App.debug, App.mode.name(),
                             stats.get("fps"), stats.get("time")), 20, window.getHeight() - 14);
                 }
 
@@ -100,16 +107,32 @@ public class Renderer extends Service {
                 g.drawImage(go.getSprite(), (int) entity.getX(), (int) entity.getY(), (int) entity.getWidth(),
                         (int) entity.getHeight(), null);
                 return;
+            } else {
+                g.setColor(go.getFillColor());
+                g.fillRect((int) (int) entity.getX(), (int) entity.getY(), (int) entity.getWidth(),
+                        (int) entity.getHeight());
+                g.setColor(go.getEdgeColor());
+                g.drawRect((int) (int) entity.getX(), (int) entity.getY(), (int) entity.getWidth(),
+                        (int) entity.getHeight());
             }
         } else {
-            g.setColor(Color.YELLOW);
+            g.setColor(Color.ORANGE);
+            Stroke bk = g.getStroke();
+            g.setStroke(new BasicStroke(0.5f));
             g.drawRect((int) (int) entity.getX(), (int) entity.getY(), (int) entity.getWidth(),
                     (int) entity.getHeight());
-
+            g.setStroke(bk);
         }
     }
 
     public JFrame getWindow() {
         return window;
+    }
+
+    public void dispose() {
+        if (window != null) {
+            window.dispose();
+        }
+        log(Renderer.class, App.LogLevel.INFO, "Renderer disposed.");
     }
 }

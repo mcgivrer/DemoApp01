@@ -1,5 +1,7 @@
 package core.physics;
 
+import static core.App.log;
+
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,6 +31,12 @@ public class PhysicsEngine extends core.utils.Service {
     }
 
     public void initialize(Properties config) {
-        
+        log(PhysicsEngine.class, App.LogLevel.INFO, "PhysicsEngine initialized.");
+    }
+
+    @Override
+    public void dispose() {
+        log(PhysicsEngine.class, App.LogLevel.INFO, "PhysicsEngine disposed.");
+
     }
 }

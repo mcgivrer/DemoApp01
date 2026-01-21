@@ -1,10 +1,13 @@
 package core.entity;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 public class GameObject extends Entity<GameObject> {
 
     private BufferedImage image;
+    private Color fillColor = Color.BLUE;
+    private Color edgeColor = Color.WHITE;
 
     public GameObject(String name) {
         super(name);
@@ -17,6 +20,14 @@ public class GameObject extends Entity<GameObject> {
 
     public BufferedImage getSprite() {
         return image;
+    }
+
+    public Color getFillColor() {
+        return fillColor;
+    }
+
+    public Color getEdgeColor() {
+        return edgeColor;
     }
 
 }

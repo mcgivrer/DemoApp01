@@ -1,6 +1,5 @@
 package core;
 
-import java.awt.Dimension;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -30,10 +29,9 @@ public class App implements Runnable {
     public static int debug = 0;
     public static AppMode mode = AppMode.DEVELOPMENT;
     private static int timeout = 1000; // in milliseconds
-    private Dimension winSize = new Dimension(800, 600);
 
     Thread appThread;
-    public boolean exit = false;
+    public static boolean exit = false;
 
     private PhysicsEngine physicsEngine;
     private Renderer renderer;
@@ -45,13 +43,17 @@ public class App implements Runnable {
 
     public void run(String[] args) {
         initialize(args);
-        
+
         inputHandler = new InputHandler();
         physicsEngine = new PhysicsEngine(this);
         renderer = new Renderer(this, inputHandler);
 
+        // initialize services
         Service.initializeAll(config);
         Service.startAll();
+
+        // initialize scenes
+        Scene.initialize(config);
 
         // start application thread
         appThread = new Thread(this);
@@ -84,10 +86,8 @@ public class App implements Runnable {
 
     @Override
     public void run() {
-
-        Scene.add(new DemoScene("demo"));
-
         Scene.activate(this, "demo");
+
         loop();
         dispose();
         log(getClass(), LogLevel.INFO, "End App class.");
@@ -184,17 +184,7 @@ public class App implements Runnable {
             timeout = Integer.parseInt(value);
             log(getClass(), LogLevel.INFO, "  set app timeout to %d ms", timeout);
         }
-        case "winsize" -> {
-            String[] dims = value.toLowerCase().split("x");
-            if (dims.length == 2) {
-                int width = Integer.parseInt(dims[0].trim());
-                int height = Integer.parseInt(dims[1].trim());
-                winSize = new Dimension(width, height);
-                log(getClass(), LogLevel.INFO, "  set window size to %dx%d", width, height);
-            } else {
-                log(getClass(), LogLevel.WARN, "  invalid window size format: %s", value);
-            }
-        }
+
         case "h", "-h", "help", "-help" -> {
             log(getClass(), LogLevel.INFO, "  help requested, exiting...");
             System.out.println("Usage: java -jar app.jar [key=value]...\n" + "Available options:\n"
@@ -226,8 +216,9 @@ public class App implements Runnable {
         Service.disposeAll();
     }
 
-    public void requestExit() {
-        this.exit = true;
+    public static void requestExit() {
+        log(App.class, LogLevel.INFO, "Request to exit");
+        exit = true;
     }
 
 }

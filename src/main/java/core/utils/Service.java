@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import core.App;
-import core.graphics.Renderer;
+import core.physics.PhysicsEngine;
 import core.scene.Scene;
 
 public class Service {
@@ -28,10 +28,12 @@ public class Service {
 
     public void start() {
         this.active = true;
+        App.log(this.getClass(), App.LogLevel.INFO, this.getClass().getSimpleName() + " started.");
     }
 
     public void stop() {
         this.active = false;
+        App.log(this.getClass(), App.LogLevel.INFO, this.getClass().getSimpleName() + " stopped.");
     }
 
     public void update(Scene scene, float deltaTime, Map<String, Object> stats) {

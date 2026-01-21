@@ -12,7 +12,7 @@ import core.physics.PhysicsEngine;
 import core.scene.Scene;
 import core.utils.InputHandler;
 import core.utils.Service;
-import demo.DemoScene;
+import demo.scenes.DemoScene;
 
 public class App implements Runnable {
     public enum LogLevel {
@@ -86,7 +86,8 @@ public class App implements Runnable {
 
     @Override
     public void run() {
-        Scene.activate(this, "demo");
+        String defaultSceneName = config.getProperty("defaultscene", "demo");
+        Scene.activate(this, defaultSceneName);
 
         loop();
         dispose();

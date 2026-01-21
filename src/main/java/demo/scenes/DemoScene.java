@@ -1,4 +1,4 @@
-package demo;
+package demo.scenes;
 
 import javax.swing.JFrame;
 

@@ -6,7 +6,7 @@ import java.util.Properties;
 
 import core.App;
 import core.entity.Entity;
-import demo.DemoScene;
+import demo.scenes.DemoScene;
 
 public class Scene extends Entity<Scene> {
 
@@ -69,6 +69,19 @@ public class Scene extends Entity<Scene> {
     public static void initialize(Properties config) {
         scenes.clear();
         // temporary loading of demo scenes
-        scenes.add(new DemoScene("demo"));
+        String[] parts = config.getProperty("scenes", "demo:demo.scenes.DemoScene").split(",");
+        for (String part : parts) {
+            String[] sceneInfo = part.split(":");
+            String sceneName = sceneInfo[0];
+            String sceneClassName = sceneInfo[1];
+            try {
+                Class<?> sceneClass = Class.forName(sceneClassName);
+                Scene sceneInstance = (Scene) sceneClass.getDeclaredConstructor(String.class).newInstance(sceneName);
+                scenes.add(sceneInstance);
+            } catch (Exception e) {
+                App.log(Scene.class, App.LogLevel.ERROR,
+                        "Failed to load scene: " + sceneName + " (" + sceneClassName + ")", e);
+            }
+        }
     }
 }

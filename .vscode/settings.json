@@ -9,5 +9,6 @@
         "libs/junit-platform-console-standalone-6.0.0.jar"
     ],
     "java.project.outputPath": "target/classes",
-    "java.format.settings.url": ".vscode/java-formatter.xml"
+    "java.format.settings.url": ".vscode/java-formatter.xml",
+    "java.dependency.packagePresentation": "hierarchical"
 }

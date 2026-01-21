@@ -1,5 +1,6 @@
 package core;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
@@ -7,19 +8,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
+import core.graphics.Renderer;
+import core.physics.PhysicsEngine;
+import core.scene.Scene;
+import core.utils.InputHandler;
+import core.utils.Service;
+import demo.DemoScene;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferStrategy;
-
-public class App implements Runnable, KeyListener {
+public class App implements Runnable {
     public enum LogLevel {
         DEBUG, INFO, WARN, ERROR, FATAL;
     }
@@ -32,14 +28,16 @@ public class App implements Runnable, KeyListener {
     private Properties config = new Properties();
 
     public static int debug = 0;
-    private static AppMode mode = AppMode.DEVELOPMENT;
+    public static AppMode mode = AppMode.DEVELOPMENT;
     private static int timeout = 1000; // in milliseconds
     private Dimension winSize = new Dimension(800, 600);
 
-    private JFrame mainWindow;
-    private boolean[] keys = new boolean[1024];
     Thread appThread;
-    private boolean exit = false;
+    public boolean exit = false;
+
+    private PhysicsEngine physicsEngine;
+    private Renderer renderer;
+    private InputHandler inputHandler;
 
     public App() {
         log(getClass(), LogLevel.INFO, "Start App class...");
@@ -47,7 +45,17 @@ public class App implements Runnable, KeyListener {
 
     public void run(String[] args) {
         initialize(args);
+        
+        inputHandler = new InputHandler();
+        physicsEngine = new PhysicsEngine(this);
+        renderer = new Renderer(this, inputHandler);
 
+        Service.initializeAll(config);
+        Service.startAll();
+
+        // start application thread
+        appThread = new Thread(this);
+        appThread.start();
     }
 
     private void initialize(String[] args) {
@@ -72,37 +80,18 @@ public class App implements Runnable, KeyListener {
         parseCliArgs(args);
         parseConfiguration();
         log(App.class, LogLevel.INFO, "  -> configuration from args parsed");
-        // start application thread
-        appThread = new Thread(this);
-        appThread.start();
     }
 
     @Override
     public void run() {
-        createWindow();
+
+        Scene.add(new DemoScene("demo"));
+
+        Scene.activate(this, "demo");
         loop();
         dispose();
         log(getClass(), LogLevel.INFO, "End App class.");
         System.exit(0);
-    }
-
-    private void createWindow() {
-        mainWindow = new JFrame(
-                String.format(messages.getString("app.title"), messages.getString("app.name"), mode.name()));
-        mainWindow.setLocationRelativeTo(null);
-        mainWindow.setPreferredSize(winSize);
-        mainWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        mainWindow.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                exit = true;
-            }
-        });
-        mainWindow.addKeyListener(this);
-        mainWindow.pack();
-        mainWindow.setVisible(true);
-        mainWindow.createBufferStrategy(3);
-        mainWindow.requestFocusInWindow();
     }
 
     private void loop() {
@@ -116,7 +105,9 @@ public class App implements Runnable, KeyListener {
         do {
             // Main application loop logic goes here
             startTime = endTime;
-            update(elapsed / 1_000_000_000, stats);
+            for (int i = 0; i < 5; i++) {
+                update(elapsed / (5 * 1_000_000_000), stats);
+            }
             draw(elapsed / 1_000_000_000, stats);
             frameCount++;
             timeFrame += elapsed;
@@ -138,26 +129,15 @@ public class App implements Runnable, KeyListener {
     }
 
     private void update(long elapsed, Map<String, Object> stats) {
+        if (Scene.currentScene != null) {
+            physicsEngine.update(Scene.currentScene, elapsed, stats);
+        }
 
     }
 
     private void draw(long elapsed, Map<String, Object> stats) {
-        if (mainWindow.isActive() && mainWindow.isDisplayable()) {
-            BufferStrategy bs = mainWindow.getBufferStrategy();
-            Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-            g.setColor(Color.BLACK);
-            g.fillRect(0, 0, winSize.width, winSize.height);
+        renderer.update(Scene.getActiveScene(), elapsed, stats);
 
-            if (debug > 0) {
-                g.setColor(new Color(0.3f, 0.1f, 0.0f, 0.7f));
-                g.fillRect(10, mainWindow.getHeight() - 30, mainWindow.getWidth(), 30);
-                g.setColor(Color.ORANGE);
-                g.drawString(String.format("{ deb:%d | mode: %s | fps: %d | time: %d }", debug, mode.name(),
-                        stats.get("fps"), stats.get("time")), 20, mainWindow.getHeight() - 14);
-            }
-            g.dispose();
-            bs.show();
-        }
     }
 
     private void parseConfiguration() {
@@ -241,40 +221,13 @@ public class App implements Runnable, KeyListener {
                 message.formatted(args));
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {
-        // N/A
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-        if (keyCode >= 0 && keyCode < keys.length) {
-            keys[keyCode] = true;
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-        if (keyCode >= 0 && keyCode < keys.length) {
-            keys[keyCode] = false;
-        }
-        switch (keyCode) {
-        case KeyEvent.VK_ESCAPE -> {
-            log(getClass(), LogLevel.INFO, "Escape key pressed. Exiting application.");
-            exit = true;
-        }
-        default -> {
-            // N/A
-        }
-        }
-    }
-
     private void dispose() {
-        if (mainWindow != null) {
-            mainWindow.dispose();
-        }
+        Service.stopAll();
+        Service.disposeAll();
+    }
+
+    public void requestExit() {
+        this.exit = true;
     }
 
 }

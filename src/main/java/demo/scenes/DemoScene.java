@@ -19,11 +19,44 @@ import core.physics.Material;
 import core.scene.Scene;
 import core.utils.Service;
 
+/**
+ * A demo scene showcasing a simple world with a player-controlled entity and
+ * multiple balls affected by gravity. The scene includes layers for rendering
+ * and a camera that follows the player.
+ * 
+ * @see Scene
+ * @see World
+ * @see GameObject
+ * @see Camera
+ * @see Layer
+ * @see GravityBehavior
+ * @see PlayerInputBehavior
+ * @see VelocityBehavior
+ * @see WorldContainedBehavior
+ * @see CameraBehavior
+ * 
+ * @author Frédéric Delorme<frederic.delorme@gmail.com>
+ * @version 0.0.1
+ * @since 2026
+ */
 public class DemoScene extends Scene {
+    /**
+     * Constructor for DemoScene.
+     * 
+     * @param name The name of the scene.
+     */
     public DemoScene(String name) {
         super(name);
     }
 
+    /**
+     * Creates the demo scene by initializing the world, player entity, balls, and
+     * camera. The scene is set up with appropriate layers and behaviors for each
+     * entity.
+     * 
+     * @param app The application instance used to access input handlers and other
+     *            services.
+     */
     @Override
     public void create(App app) {
         JFrame window = Service.get(Renderer.class).getWindow();
@@ -40,16 +73,10 @@ public class DemoScene extends Scene {
 
         // add a player entity
         GameObject player = new GameObject("player")
-                .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2)
-                .setSize(24, 32)
-                .setVelocity(0, 0)
-                .setFillColor(Color.GREEN)
-                .setEdgeColor(Color.GREEN.darker().darker())
-                .setMaterial(Material.WOOD)
-                .add(new GravityBehavior(9.81f))
-                .add(new VelocityBehavior())
-                .add(new WorldContainedBehavior(world))
-                .add(new PlayerInputBehavior(app.getInputHandler()));
+                .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2).setSize(24, 32)
+                .setVelocity(0, 0).setFillColor(Color.GREEN).setEdgeColor(Color.GREEN.darker().darker())
+                .setMaterial(Material.WOOD).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
+                .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()));
         addEntity(player);
 
         generateBalls(world, foregroundLayer, 200);
@@ -68,12 +95,8 @@ public class DemoScene extends Scene {
             GameObject ball = new GameObject("ball_" + i)
                     .setPosition((float) (Math.random() * (world.getWidth() - 16)),
                             (float) (Math.random() * (world.getHeight() - 16)))
-                    .setSize(16, 16).setVelocity(0, 0)
-                    .setFillColor(Color.RED)
-                    .setEdgeColor(Color.RED.darker().darker())
-                    .setMaterial(Material.SUPERBALL)
-                    .add(new GravityBehavior(9.81f))
-                    .add(new VelocityBehavior())
+                    .setSize(16, 16).setVelocity(0, 0).setFillColor(Color.RED).setEdgeColor(Color.RED.darker().darker())
+                    .setMaterial(Material.SUPERBALL).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
                     .add(new WorldContainedBehavior(world));
             midLayer.add(ball);
             addEntity(ball);

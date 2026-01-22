@@ -13,6 +13,21 @@ import core.scene.Scene;
 import core.utils.InputHandler;
 import core.utils.Service;
 
+/**
+ * The main application class that initializes and runs the core components of
+ * the application, including configuration parsing, service management, scene
+ * handling, and the main application loop.
+ * 
+ * @see Service
+ * @see Scene
+ * @see Renderer
+ * @see PhysicsEngine
+ * @see InputHandler
+ * 
+ * @author Frédéric Delorme<frederic.delorme@gmail.com>
+ * @version 0.0.1
+ * @since 2026
+ */
 public class App {
     public enum LogLevel {
         DEBUG, INFO, WARN, ERROR, FATAL;

@@ -25,11 +25,24 @@ import core.utils.InputHandler;
 import core.utils.Service;
 
 /**
- * Renderer service responsible for rendering entities onto the screen.
+ * Renderer service responsible for rendering entities onto the screen. It
+ * manages a window and uses render plugins to draw different types of entities.
+ * The renderer supports layering and camera translation for midground and
+ * foreground layers.
+ * 
+ * @see RenderPlugin
+ * @see Entity
+ * @see Scene
+ * @see Camera
+ * @see Layer
+ * @see GameObjectRenderPlugin
+ * @see WorldRenderPlugin
+ * @see DebugRenderPlugin
  * 
  * @author Frédéric Delorme
  * @since 2026
  * @version 0.0.1
+ * 
  */
 public class Renderer extends Service {
     private App app;
@@ -38,11 +51,21 @@ public class Renderer extends Service {
 
     private List<RenderPlugin<? extends Entity>> renderPlugins = new ArrayList<>();
 
+    /**
+     * Constructor for the Renderer.
+     * 
+     * @param app          The main application instance.
+     * @param inputHandler The input handler for processing user input.
+     */
     public Renderer(App app, InputHandler inputHandler) {
         super(app);
         this.inputHandler = inputHandler;
     }
 
+    /**
+     * Initializes the renderer by creating the application window and setting up
+     * render plugins.
+     */
     @Override
     public void initialize(Properties config) {
 
@@ -78,10 +101,30 @@ public class Renderer extends Service {
         log(Renderer.class, App.LogLevel.INFO, "Renderer initialized.");
     }
 
-    private void registerPlugin(RenderPlugin<? extends Entity<?>> renderPlugin) {
+    /**
+     * Registers a render plugin with the renderer.
+     * 
+     * @param renderPlugin The render plugin to register.
+     */
+    public void registerPlugin(RenderPlugin<? extends Entity<?>> renderPlugin) {
         renderPlugins.add(renderPlugin);
     }
 
+    /**
+     * Renders the scene by drawing all active and visible entities using the
+     * appropriate render plugins. It also handles camera translation for midground
+     * and foreground layers.
+     * 
+     * @param scene     The scene to render.
+     * @param deltaTime The time elapsed since the last update.
+     * @param stats     A map to store rendering statistics.
+     * @see Scene
+     * @see Entity
+     * @see Camera
+     * @see Layer
+     * @see RenderPlugin
+     * 
+     */
     @Override
     public void update(Scene scene, float deltaTime, Map<String, Object> stats) {
         if (window != null && window.isActive() && window.isDisplayable()) {
@@ -127,6 +170,19 @@ public class Renderer extends Service {
         }
     }
 
+    /**
+     * Draws a single entity using the appropriate render plugin, applying camera
+     * translation for midground and foreground layers.
+     * 
+     * @param g      The Graphics2D context to draw on.
+     * @param camera The camera for translation.
+     * @param entity The entity to draw.
+     * @see Camera
+     * @see Entity
+     * @see Layer
+     * @see RenderPlugin
+     * 
+     */
     private void drawEntity(Graphics2D g, Camera camera, Entity<?> entity) {
         if (entity.getLayer().getLayerType() == Layer.LayerType.MIDGROUND
                 || entity.getLayer().getLayerType() == Layer.LayerType.FOREGROUND) {
@@ -149,6 +205,11 @@ public class Renderer extends Service {
         return window;
     }
 
+    /**
+     * Disposes of the renderer, releasing resources and closing the window.
+     * 
+     * @see JFrame
+     */
     public void dispose() {
         if (window != null) {
             window.dispose();

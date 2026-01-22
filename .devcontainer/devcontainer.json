@@ -1,12 +1,17 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
   "features": {
-    "ghcr.io/devcontainers/features/desktop-lite:1": {}
+    "ghcr.io/devcontainers/features/desktop-lite:1": {
+      "password": "vscode",
+      "webPort": "6080"
+    }
   },
   "forwardPorts": [6080],
   "portsAttributes": {
     "6080": {
-      "label": "desktop"
+      "label": "Desktop",
+      "onAutoForward": "public"
     }
-  }
+  },
+  "postCreateCommand": "sudo apt update && sudo apt install -y libxi6 libxtst6 libxrender1 libxext6 libxfixes3 xvfb"
 }

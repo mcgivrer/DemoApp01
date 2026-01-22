@@ -5,6 +5,7 @@ import java.util.List;
 
 import core.behavior.Behavior;
 import core.graphics.Layer;
+import core.physics.Material;
 
 public class Entity<T> {
     private static long idx = 0;
@@ -22,6 +23,7 @@ public class Entity<T> {
     Layer layer = null;
 
     protected List<Behavior<?>> behaviors = new ArrayList<>();
+    private Material material = Material.DEFAULT;
 
     public Entity(String name) {
         this.name = name;
@@ -129,6 +131,15 @@ public class Entity<T> {
 
     public Layer getLayer() {
         return layer;
+    }
+
+    public T setMaterial(Material material) {
+        this.material = material;
+        return (T) this;
+    }
+
+    public Material getMaterial() {
+        return material;
     }
 
     public String[] getDebugInfo() {

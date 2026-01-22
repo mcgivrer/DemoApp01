@@ -31,15 +31,11 @@ public class PlayerInputBehavior implements Behavior<GameObject> {
             entity.setVx(-speed);
         } else if (inputHandler.isKeyPressed(KeyEvent.VK_RIGHT) || inputHandler.isKeyPressed(KeyEvent.VK_S)) {
             entity.setVx(speed);
-        } else {
-            entity.setVx(entity.getVx() * 0.8f);
         }
         if (inputHandler.isKeyPressed(KeyEvent.VK_UP) || inputHandler.isKeyPressed(KeyEvent.VK_Z)) {
             entity.setVy(-speed * 2.5f);
         } else if (inputHandler.isKeyPressed(KeyEvent.VK_DOWN) || inputHandler.isKeyPressed(KeyEvent.VK_W)) {
             entity.setVy(speed);
-        } else {
-            entity.setVy(entity.getVy() * 0.8f);
         }
     }
 

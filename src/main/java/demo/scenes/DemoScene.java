@@ -15,6 +15,7 @@ import core.entity.GameObject;
 import core.entity.World;
 import core.graphics.Layer;
 import core.graphics.Renderer;
+import core.physics.Material;
 import core.scene.Scene;
 import core.utils.Service;
 
@@ -39,9 +40,16 @@ public class DemoScene extends Scene {
 
         // add a player entity
         GameObject player = new GameObject("player")
-                .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2).setSize(24, 32)
-                .setVelocity(0, 0).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
-                .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()));
+                .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2)
+                .setSize(24, 32)
+                .setVelocity(0, 0)
+                .setFillColor(Color.GREEN)
+                .setEdgeColor(Color.GREEN.darker().darker())
+                .setMaterial(Material.WOOD)
+                .add(new GravityBehavior(9.81f))
+                .add(new VelocityBehavior())
+                .add(new WorldContainedBehavior(world))
+                .add(new PlayerInputBehavior(app.getInputHandler()));
         addEntity(player);
 
         generateBalls(world, foregroundLayer, 200);
@@ -63,6 +71,7 @@ public class DemoScene extends Scene {
                     .setSize(16, 16).setVelocity(0, 0)
                     .setFillColor(Color.RED)
                     .setEdgeColor(Color.RED.darker().darker())
+                    .setMaterial(Material.SUPERBALL)
                     .add(new GravityBehavior(9.81f))
                     .add(new VelocityBehavior())
                     .add(new WorldContainedBehavior(world));

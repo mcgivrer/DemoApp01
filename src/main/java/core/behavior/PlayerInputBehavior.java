@@ -27,15 +27,30 @@ public class PlayerInputBehavior implements Behavior<GameObject> {
     @Override
     public void update(Entity<?> entity, float deltaTime) {
         float speed = 200.0f;
+        // horizontal movement
         if (inputHandler.isKeyPressed(KeyEvent.VK_LEFT) || inputHandler.isKeyPressed(KeyEvent.VK_Q)) {
             entity.setVx(-speed);
         } else if (inputHandler.isKeyPressed(KeyEvent.VK_RIGHT) || inputHandler.isKeyPressed(KeyEvent.VK_S)) {
             entity.setVx(speed);
+        } else {
+            entity.setVx(entity.getVx() * entity.getMaterial().friction());
         }
+        // vertical movement
         if (inputHandler.isKeyPressed(KeyEvent.VK_UP) || inputHandler.isKeyPressed(KeyEvent.VK_Z)) {
             entity.setVy(-speed * 2.5f);
         } else if (inputHandler.isKeyPressed(KeyEvent.VK_DOWN) || inputHandler.isKeyPressed(KeyEvent.VK_W)) {
             entity.setVy(speed);
+        } else {
+            entity.setVy(entity.getVy() * entity.getMaterial().friction());
+        }
+        // rotation
+        float angularSpeed = 90.0f; // degrés/seconde
+        if (inputHandler.isKeyPressed(KeyEvent.VK_A)) {
+            entity.setVa(-angularSpeed);
+        } else if (inputHandler.isKeyPressed(KeyEvent.VK_E)) {
+            entity.setVa(angularSpeed);
+        } else {
+            entity.setVa(entity.getVa() * entity.getMaterial().friction());
         }
     }
 

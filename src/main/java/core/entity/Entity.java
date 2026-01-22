@@ -19,6 +19,26 @@ public class Entity<T> {
     public float x, y;
     public int width, height;
     public float vx, vy;
+    // Axe de rotation (en degrés)
+    public float angle = 0f;
+    // Vitesse angulaire (en degrés/seconde)
+    public float va = 0f;
+        public T setVa(float va) {
+            this.va = va;
+            return (T) this;
+        }
+
+        public float getVa() {
+            return va;
+        }
+    public T setAngle(float angle) {
+        this.angle = angle;
+        return (T) this;
+    }
+
+    public float getAngle() {
+        return angle;
+    }
 
     Layer layer = null;
 
@@ -143,8 +163,15 @@ public class Entity<T> {
     }
 
     public String[] getDebugInfo() {
-        return new String[] { "id=" + id, "name=" + name, "pos=(%4.2f,%4.2f)".formatted(x, y),
-                "size=(" + width + "x" + height + ")", "vel=(%4.2f,%4.2f)".formatted(vx, vy) };
+        return new String[] {
+            "id=" + id,
+            "name=" + name,
+            "pos=(%4.2f,%4.2f)".formatted(x, y),
+            "size=(" + width + "x" + height + ")",
+            "vel=(%4.2f,%4.2f)".formatted(vx, vy),
+            "angle=%4.2f".formatted(angle),
+            "va=%4.2f".formatted(va)
+        };
     }
 
 }

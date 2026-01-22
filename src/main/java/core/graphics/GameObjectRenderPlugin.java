@@ -27,17 +27,24 @@ public class GameObjectRenderPlugin implements RenderPlugin<GameObject> {
         int width = (int) entity.getWidth();
         int height = (int) entity.getHeight();
 
+        // Appliquer la rotation autour du centre de l'entité
+        Graphics2D g2 = (Graphics2D) g.create();
+        double angleRad = Math.toRadians(entity.getAngle());
+        g2.rotate(angleRad, x + width / 2.0, y + height / 2.0);
+
         if (entity.getSprite() != null) {
-            g.drawImage(entity.getSprite(), x, y, width, height, null);
+            g2.drawImage(entity.getSprite(), x, y, width, height, null);
+            g2.dispose();
             return;
         }
 
-        g.setColor(entity.getFillColor());
-        g.fillRect(x, y, width, height);
+        g2.setColor(entity.getFillColor());
+        g2.fillRect(x, y, width, height);
 
-        g.setColor(entity.getEdgeColor());
-        g.setStroke(new BasicStroke(0.5f));
-        g.drawRect(x, y, width, height);
+        g2.setColor(entity.getEdgeColor());
+        g2.setStroke(new BasicStroke(0.5f));
+        g2.drawRect(x, y, width, height);
+        g2.dispose();
     }
 
 }

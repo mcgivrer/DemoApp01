@@ -16,5 +16,13 @@ public class VelocityBehavior implements Behavior<Entity<?>> {
     public void update(Entity<?> entity, float deltaTime) {
         entity.x += entity.vx * deltaTime;
         entity.y += entity.vy * deltaTime;
+        // Si l'entité possède une vitesse angulaire (va), on met à jour l'angle
+        try {
+            java.lang.reflect.Field vaField = entity.getClass().getField("va");
+            float va = vaField.getFloat(entity);
+            entity.setAngle(entity.getAngle() + va * deltaTime);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            // Pas de champ va, on ignore
+        }
     }
 }

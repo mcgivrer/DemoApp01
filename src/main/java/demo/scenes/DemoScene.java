@@ -6,13 +6,16 @@ import javax.swing.JFrame;
 
 import core.App;
 import core.behavior.Behavior;
+import core.behavior.CameraBehavior;
 import core.behavior.GravityBehavior;
 import core.behavior.PlayerInputBehavior;
 import core.behavior.VelocityBehavior;
 import core.behavior.WorldContainedBehavior;
+import core.entity.Camera;
 import core.entity.Entity;
 import core.entity.GameObject;
 import core.entity.World;
+import core.graphics.Layer;
 import core.graphics.Renderer;
 import core.scene.Scene;
 import core.utils.Service;
@@ -26,15 +29,49 @@ public class DemoScene extends Scene {
     public void create(App app) {
         JFrame window = Service.get(Renderer.class).getWindow();
         // add a world entity
-        World world = new World("earth").setGravity(9.81f).setSize(window.getWidth(), window.getHeight()).setPosition(window.getWidth() / 2,
-                -window.getHeight() / 3);
+
+        Layer foregroundLayer = new Layer("foreground", Layer.LayerType.FOREGROUND, 2);
+        addEntity(foregroundLayer);
+
+        Layer midLayer = new Layer("midground", Layer.LayerType.MIDGROUND, 1);
+        addEntity(midLayer);
+
+        World world = new World("earth").setGravity(9.81f).setSize(window.getWidth(), window.getHeight())
+                .setPosition(window.getWidth() / 2, -window.getHeight() / 3);
         addEntity(world);
 
         // add a player entity
-        addEntity(new GameObject("player").setPosition((window.getWidth() - 24) / 2, (window.getHeight() - 32) / 2)
-                .setSize(24, 32).setVelocity(0, 0).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
-                .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler())));
+        GameObject player = new GameObject("player")
+                .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2).setSize(24, 32)
+                .setVelocity(0, 0).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
+                .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()));
+        addEntity(player);
 
+        generateBalls(world, midLayer, 10);
+
+        Camera camera = new Camera("cam01")
+            .setSize(600, 400)
+            .setTarget(player)
+            .setTweenFactor(5.0f)
+            .setActive(true)
+            .add(new CameraBehavior(window,0.5f,0.75f));
+        addEntity(camera);
+
+        foregroundLayer.add(world);
+        foregroundLayer.add(player);
+        foregroundLayer.add(camera);
+    }
+
+    private void generateBalls(World world, Layer midLayer, int nb) {
+        for (int i = 0; i < nb; i++) {
+            GameObject ball = new GameObject("ball_" + i)
+                    .setPosition((float) (Math.random() * (world.getWidth() - 16)),
+                            (float) (Math.random() * (world.getHeight() - 16)))
+                    .setSize(16, 16).setVelocity(0, 0).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
+                    .add(new WorldContainedBehavior(world));
+            midLayer.add(ball);
+            addEntity(ball);
+        }
     }
 
 }

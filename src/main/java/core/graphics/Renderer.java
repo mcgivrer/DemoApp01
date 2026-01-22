@@ -2,11 +2,9 @@ package core.graphics;
 
 import static core.App.log;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Stroke;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -20,8 +18,8 @@ import javax.swing.WindowConstants;
 
 import core.App;
 import core.App.AppMode;
+import core.entity.Camera;
 import core.entity.Entity;
-import core.entity.GameObject;
 import core.scene.Scene;
 import core.utils.InputHandler;
 import core.utils.Service;
@@ -89,9 +87,15 @@ public class Renderer extends Service {
                 g.setColor(Color.BLACK);
                 g.fillRect(0, 0, window.getWidth(), window.getHeight());
 
-                scene.entities.stream().filter(Entity::isActive).filter(Entity::isVisible).forEach(entity -> {
-                    drawEntity(g, entity); // Draw each entity
-                });
+                Camera camera = scene.getCameras();
+
+                // draw entities
+                scene.entities.stream().filter(e -> !(e instanceof Layer)).filter(Entity::isActive)
+                        .filter(Entity::isVisible)
+                        .sorted((e1, e2) -> Integer.compare(e1.getLayer().getZIndex(), e2.getLayer().getZIndex()))
+                        .forEach(entity -> {
+                            drawEntity(g, camera, entity); // Draw each entity
+                        });
 
                 if (App.mode.equals(AppMode.DEVELOPMENT) && App.debug > 0) {
                     // Update stats
@@ -101,8 +105,9 @@ public class Renderer extends Service {
                     g.fillRect(0, window.getHeight() - 30, window.getWidth(), 30);
 
                     g.setColor(Color.ORANGE);
-                    g.drawString(String.format("{ dbg:%d | mode: %s | fps: %d | time: %f | count: %d}", App.debug, App.mode.name(),
-                            stats.get("fps"), stats.get("time"), stats.get("rendered.entities")), 20, window.getHeight() - 14);
+                    g.drawString(String.format("{ dbg:%d | mode: %s | fps: %d | time: %f | count: %d }", App.debug,
+                            App.mode.name(), stats.get("fps"), stats.get("time"), stats.get("rendered.entities")), 20,
+                            window.getHeight() - 14);
                 }
 
                 // finalize rendering
@@ -113,7 +118,11 @@ public class Renderer extends Service {
         }
     }
 
-    private void drawEntity(Graphics2D g, Entity<?> entity) {
+    private void drawEntity(Graphics2D g, Camera camera, Entity<?> entity) {
+        if (entity.getLayer().getLayerType() == Layer.LayerType.MIDGROUND
+                || entity.getLayer().getLayerType() == Layer.LayerType.FOREGROUND) {
+            g.translate(-camera.getX(), -camera.getY());
+        }
         renderPlugins.stream().filter(plugin -> plugin.getSupportedEntityType().isAssignableFrom(entity.getClass()))
                 .findFirst().ifPresent(plugin -> {
                     // Safe to cast because of the isAssignableFrom check
@@ -121,6 +130,10 @@ public class Renderer extends Service {
                     RenderPlugin<Entity<?>> castedPlugin = (RenderPlugin<Entity<?>>) plugin;
                     castedPlugin.render(entity, g);
                 });
+        if (entity.getLayer().getLayerType() == Layer.LayerType.MIDGROUND
+                || entity.getLayer().getLayerType() == Layer.LayerType.FOREGROUND) {
+            g.translate(camera.getX(), camera.getY());
+        }
     }
 
     public JFrame getWindow() {

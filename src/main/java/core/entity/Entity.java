@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import core.behavior.Behavior;
+import core.graphics.Layer;
 
 public class Entity<T> {
     private static long idx = 0;
@@ -18,7 +19,9 @@ public class Entity<T> {
     public int width, height;
     public float vx, vy;
 
-    public List<Behavior<?>> behaviors = new ArrayList<>();
+    Layer layer = null;
+
+    protected List<Behavior<?>> behaviors = new ArrayList<>();
 
     public Entity(String name) {
         this.name = name;
@@ -104,4 +107,24 @@ public class Entity<T> {
         this.vy = f;
         return (T) this;
     }
+
+    public T setActive(boolean active) {
+        this.active = active;
+        return (T) this;
+    }
+
+    public T setVisible(boolean visible) {
+        this.visible = visible;
+        return (T) this;
+    }
+
+    public T setLayer(Layer layer) {
+        this.layer = layer;
+        return (T) this;
+    }
+
+    public Layer getLayer() {
+        return layer;
+    }
+
 }

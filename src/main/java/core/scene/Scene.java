@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 import core.App;
+import core.entity.Camera;
 import core.entity.Entity;
 import demo.scenes.DemoScene;
 
@@ -84,4 +85,14 @@ public class Scene extends Entity<Scene> {
             }
         }
     }
+
+    public Camera getCameras() {
+        return entities.stream()
+                .filter(Camera.class::isInstance)
+                .map(Camera.class::cast)
+                .filter(Camera::isActive)
+                .findFirst()
+                .orElse(null);
+    }
+    
 }

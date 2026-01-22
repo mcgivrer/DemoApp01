@@ -18,24 +18,25 @@ public class WorldRenderPlugin implements RenderPlugin<World> {
     }
 
     @Override
-    public void render(World entity, Graphics2D g) {
-        g.setColor(entity.getSkyColor());
-        g.fillRect((int) entity.getX() - entity.getWidth(), (int) entity.getY(), (int) entity.getWidth() * 3,
-                (int) entity.getHeight() * 2);
+    public void render(World world, Graphics2D g) {
+        g.setColor(world.getSkyColor());
+        g.fillRect((int) world.getX() - world.getWidth(), (int) world.getY()-world.getHeight(), (int) world.getWidth() * 3,
+                (int) world.getHeight() * 2);
 
-        g.setColor(entity.getGroundColor());
-        g.fillRect((int) entity.getX() - entity.getWidth(), (int) entity.getY() + entity.getHeight(),
-                (int) entity.getWidth() * 3, (int) entity.getHeight() / 2);
+        g.setColor(world.getGroundColor());
+        g.fillRect((int) world.getX() - world.getWidth(), (int) world.getY() + world.getHeight(),
+                (int) world.getWidth() * 3, (int) world.getHeight() / 2);
 
-        g.setColor(entity.getEdgeColor());
+        g.setColor(world.getEdgeColor());
         Stroke originalStroke = g.getStroke();
-        g.setStroke(new BasicStroke(1.5f));
-        g.drawRect((int) entity.getX() - entity.getWidth(), (int) entity.getY() + entity.getHeight(),
-                (int) entity.getWidth() * 3, 2);
+        g.drawRect((int) world.getX() - world.getWidth(), (int) world.getY() + world.getHeight(),
+                (int) world.getWidth() * 3, 2);
         if (App.mode.equals(App.AppMode.DEVELOPMENT)) {
-            g.setStroke(new BasicStroke(0.5f));
+            // Ligne en pointillé
+            float[] dash = { 8.0f, 8.0f };
+            g.setStroke(new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f));
             g.setColor(Color.DARK_GRAY);
-            g.drawRect((int) entity.getX(), (int) entity.getY(), (int) entity.getWidth(), (int) entity.getHeight());
+            g.drawRect((int) world.getX(), (int) world.getY(), (int) world.getWidth(), (int) world.getHeight());
         }
         g.setStroke(originalStroke);
     }

@@ -23,10 +23,7 @@ public class PhysicsEngine extends core.utils.Service {
         }
         // update scene entities.
         scene.getEntities().stream().filter(Entity::isActive).forEach(entity -> {
-            for (var behavior : entity.getBehaviors()) {
-                // apply Entity behaviors
-                behavior.update((Entity<?>) entity, deltaTime);
-            }
+            entity.getBehaviors().forEach(behavior -> behavior.update((Entity<?>) entity, deltaTime));
         });
     }
 

@@ -1,6 +1,6 @@
 # README
 
-[![Java CI with build script](https://github.com/mcgivrer/DemoApp01/actions/workflows/main.yml/badge.svg)](https://github.com/mcgivrer/DemoApp01/actions/workflows/main.yml)
+[![Java CI with build script](https://github.com/mcgivrer/DemoApp01/actions/workflows/main.yml/badge.svg)](https://github.com/mcgivrer/DemoApp01/actions/workflows/main.yml) [![CodeQL](https://github.com/mcgivrer/DemoApp01/actions/workflows/codeql.yml/badge.svg)](https://github.com/mcgivrer/DemoApp01/actions/workflows/codeql.yml)
 
 ## Project DemoApp01 version 0.0.1
 

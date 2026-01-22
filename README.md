@@ -1,5 +1,7 @@
 # README
 
+[![Java CI with build script](https://github.com/mcgivrer/DemoApp01/actions/workflows/main.yml/badge.svg)](https://github.com/mcgivrer/DemoApp01/actions/workflows/main.yml)
+
 ## Project DemoApp01 version 0.0.1
 
 ### Build JAR with sdkman and javac

@@ -24,6 +24,7 @@ jobs:
        export DISPLAY=":1"
        export AUDIODEV=null
        xvfb-run :1 -screen 0 1024x768x24 > /dev/null 2>&1 &
+       chmod +x ./build
        ./build
       env:
        DISPLAY: :1

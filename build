@@ -4,8 +4,8 @@ project_name=DemoApp01
 project_version=0.0.1
 main_class=core.App
 JARS=
-vendor_name="VENDORNAME"
-author_name="Frédéric Delorme<frederic.delorme@merckgoup.com>"
+vendor_name="SnapGames"
+author_name="Frédéric Delorme<frederic.delorme@gmail.com>"
 #
 #--- DO NOT CHANGE THE FOLLOWING LINES ---
 #

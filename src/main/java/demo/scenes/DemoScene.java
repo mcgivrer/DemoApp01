@@ -1,21 +1,18 @@
 package demo.scenes;
 
-import java.awt.event.KeyEvent;
+import java.awt.Color;
 
 import javax.swing.JFrame;
 
 import core.App;
-import core.behavior.Behavior;
 import core.behavior.CameraBehavior;
 import core.behavior.GravityBehavior;
 import core.behavior.PlayerInputBehavior;
 import core.behavior.VelocityBehavior;
 import core.behavior.WorldContainedBehavior;
 import core.entity.Camera;
-import core.entity.Entity;
 import core.entity.GameObject;
 import core.entity.World;
-import core.graphics.DebugRenderPlugin;
 import core.graphics.Layer;
 import core.graphics.Renderer;
 import core.scene.Scene;
@@ -37,8 +34,7 @@ public class DemoScene extends Scene {
         Layer midLayer = new Layer("midground", Layer.LayerType.MIDGROUND, 1);
         addEntity(midLayer);
 
-        World world = new World("earth").setGravity(9.81f).setSize(window.getWidth(), window.getHeight())
-                .setPosition(window.getWidth() / 2, -window.getHeight() / 3);
+        World world = new World("earth").setGravity(9.81f).setSize(window.getWidth(), window.getHeight());
         addEntity(world);
 
         // add a player entity
@@ -48,13 +44,13 @@ public class DemoScene extends Scene {
                 .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()));
         addEntity(player);
 
-        generateBalls(world, midLayer, 10);
+        generateBalls(world, foregroundLayer, 200);
 
         Camera camera = new Camera("cam01").setSize(600, 400).setTarget(player).setTweenFactor(5.0f).setActive(true)
                 .add(new CameraBehavior(window, 0.5f, 0.75f));
         addEntity(camera);
 
-        foregroundLayer.add(world);
+        midLayer.add(world);
         foregroundLayer.add(player);
         foregroundLayer.add(camera);
     }
@@ -64,7 +60,11 @@ public class DemoScene extends Scene {
             GameObject ball = new GameObject("ball_" + i)
                     .setPosition((float) (Math.random() * (world.getWidth() - 16)),
                             (float) (Math.random() * (world.getHeight() - 16)))
-                    .setSize(16, 16).setVelocity(0, 0).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
+                    .setSize(16, 16).setVelocity(0, 0)
+                    .setFillColor(Color.RED)
+                    .setEdgeColor(Color.RED.darker().darker())
+                    .add(new GravityBehavior(9.81f))
+                    .add(new VelocityBehavior())
                     .add(new WorldContainedBehavior(world));
             midLayer.add(ball);
             addEntity(ball);

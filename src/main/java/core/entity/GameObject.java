@@ -31,12 +31,19 @@ public class GameObject extends Entity<GameObject> {
     }
 
     public String[] getDebugInfo() {
-        return new String[] {
-            "GameObject ID: " + this.getId(),
-            "Name: " + this.getName(),
-            "Position: (" + this.getX() + ", " + this.getY() + ")",
-            "Size: (" + this.getWidth() + " x " + this.getHeight() + ")"
-        };
+        return new String[] { "GameObject ID: " + this.getId(), "Name: " + this.getName(),
+                "Position: (" + this.getX() + ", " + this.getY() + ")",
+                "Size: (" + this.getWidth() + " x " + this.getHeight() + ")" };
+    }
+
+    public GameObject setFillColor(Color fillColor) {
+        this.fillColor = fillColor;
+        return this;
+    }
+
+    public GameObject setEdgeColor(Color edgeColor) {
+        this.edgeColor = edgeColor;
+        return this;
     }
 
 }

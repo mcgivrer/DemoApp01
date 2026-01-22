@@ -123,4 +123,4 @@ Messages are externalized in `src/main/resources/i18n/messages.properties`.
 All contributions are welcome!
 
 ---
-Frédéric Delorme <frederic.delorme@merckgoup.com>
+Frédéric Delorme <frederic.delorme@gmail.com>

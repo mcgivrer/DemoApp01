@@ -30,4 +30,13 @@ public class GameObject extends Entity<GameObject> {
         return edgeColor;
     }
 
+    public String[] getDebugInfo() {
+        return new String[] {
+            "GameObject ID: " + this.getId(),
+            "Name: " + this.getName(),
+            "Position: (" + this.getX() + ", " + this.getY() + ")",
+            "Size: (" + this.getWidth() + " x " + this.getHeight() + ")"
+        };
+    }
+
 }

@@ -4,8 +4,8 @@ import java.awt.Color;
 
 public class World extends Entity<World> {
     private float gravity = 9.81f;
-    private Color skyColor = Color.CYAN.darker().darker();
-    private Color groundColor = Color.GREEN.darker().darker().darker();
+    private Color skyColor = Color.CYAN.darker();
+    private Color groundColor = Color.GREEN.darker().darker();
     private Color edgeColor = Color.BLACK;
 
     public World(String name) {
@@ -41,6 +41,17 @@ public class World extends Entity<World> {
 
     public Color getEdgeColor() {
         return edgeColor;
+    }
+
+    public World setEdgeColor(Color edgeColor) {
+        this.edgeColor = edgeColor;
+        return this;
+    }
+
+    public String[] getDebugInfo() {
+        return new String[] { "World ID: " + this.getId(), "Name: " + this.getName(),
+                "Position: (" + this.getX() + ", " + this.getY() + ")",
+                "Size: (" + this.getWidth() + " x " + this.getHeight() + ")", "Gravity: " + this.getGravity() + "m/s" };
     }
 
 }

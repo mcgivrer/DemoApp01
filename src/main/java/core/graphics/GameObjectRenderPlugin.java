@@ -5,6 +5,14 @@ import java.awt.Graphics2D;
 
 import core.entity.GameObject;
 
+/**
+ * A render plugin for rendering GameObject entities. It handles drawing the
+ * GameObject's sprite if available, or a filled rectangle with edge color
+ * otherwise.
+ * 
+ * @see GameObject
+ * @see RenderPlugin
+ */
 public class GameObjectRenderPlugin implements RenderPlugin<GameObject> {
 
     @Override

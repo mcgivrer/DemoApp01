@@ -15,6 +15,7 @@ import core.entity.Camera;
 import core.entity.Entity;
 import core.entity.GameObject;
 import core.entity.World;
+import core.graphics.DebugRenderPlugin;
 import core.graphics.Layer;
 import core.graphics.Renderer;
 import core.scene.Scene;
@@ -49,12 +50,8 @@ public class DemoScene extends Scene {
 
         generateBalls(world, midLayer, 10);
 
-        Camera camera = new Camera("cam01")
-            .setSize(600, 400)
-            .setTarget(player)
-            .setTweenFactor(5.0f)
-            .setActive(true)
-            .add(new CameraBehavior(window,0.5f,0.75f));
+        Camera camera = new Camera("cam01").setSize(600, 400).setTarget(player).setTweenFactor(5.0f).setActive(true)
+                .add(new CameraBehavior(window, 0.5f, 0.75f));
         addEntity(camera);
 
         foregroundLayer.add(world);

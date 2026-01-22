@@ -29,14 +29,14 @@ public class PlayerInputBehavior implements Behavior<GameObject> {
         float speed = 200.0f;
         if (inputHandler.isKeyPressed(KeyEvent.VK_LEFT) || inputHandler.isKeyPressed(KeyEvent.VK_Q)) {
             entity.setVx(-speed);
-        } else if (inputHandler.isKeyPressed(KeyEvent.VK_RIGHT) || inputHandler.isKeyPressed(KeyEvent.VK_D)) {
+        } else if (inputHandler.isKeyPressed(KeyEvent.VK_RIGHT) || inputHandler.isKeyPressed(KeyEvent.VK_S)) {
             entity.setVx(speed);
         } else {
             entity.setVx(entity.getVx() * 0.8f);
         }
         if (inputHandler.isKeyPressed(KeyEvent.VK_UP) || inputHandler.isKeyPressed(KeyEvent.VK_Z)) {
             entity.setVy(-speed * 2.5f);
-        } else if (inputHandler.isKeyPressed(KeyEvent.VK_DOWN) || inputHandler.isKeyPressed(KeyEvent.VK_S)) {
+        } else if (inputHandler.isKeyPressed(KeyEvent.VK_DOWN) || inputHandler.isKeyPressed(KeyEvent.VK_W)) {
             entity.setVy(speed);
         } else {
             entity.setVy(entity.getVy() * 0.8f);

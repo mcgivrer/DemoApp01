@@ -27,7 +27,6 @@ public class App {
 
     public static int debug = 0;
     public static AppMode mode = AppMode.DEVELOPMENT;
-    private static int timeout = 1000; // in milliseconds
 
     public static boolean exit = false;
 
@@ -114,8 +113,7 @@ public class App {
                 timeFrame = 0;
             }
             try {
-                Thread.sleep(
-                        (int) (((FPS / 1_000_000_000) - (elapsed) > 0) ? (FPS / 1_000_000_000) - (elapsed) : 1f));
+                Thread.sleep((int) (((FPS / 1_000_000_000) - (elapsed) > 0) ? (FPS / 1_000_000_000) - (elapsed) : 1f));
             } catch (InterruptedException e) {
                 log(App.class, LogLevel.ERROR, "  application loop interrupted: %s", e.getMessage());
             }
@@ -176,17 +174,11 @@ public class App {
             mode = AppMode.valueOf(value.toUpperCase());
             log(getClass(), LogLevel.INFO, "  set app mode to %s", value);
         }
-        case "timeout" -> {
-            timeout = Integer.parseInt(value);
-            log(getClass(), LogLevel.INFO, "  set app timeout to %d ms", timeout);
-        }
-
         case "h", "-h", "help", "-help" -> {
             log(getClass(), LogLevel.INFO, "  help requested, exiting...");
             System.out.println("Usage: java -jar app.jar [key=value]...\n" + "Available options:\n"
                     + "  debug=<level>       Set debug level (0=none, 1=some, 2=verbose)\n"
                     + "  mode=<mode>         Set application mode (DEVELOPMENT, TESTING, PRODUCTION)\n"
-                    + "  timeout=<ms>        Set application timeout in milliseconds\n"
                     + "  winsize=<WxH>       Set window size (e.g., 800x600)\n"
                     + "  help                Show this help message");
             System.exit(0);

@@ -50,6 +50,10 @@ public class Entity<T> {
         return (T) this;
     }
 
+    public long getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -125,6 +129,11 @@ public class Entity<T> {
 
     public Layer getLayer() {
         return layer;
+    }
+
+    public String[] getDebugInfo() {
+        return new String[] { "id=" + id, "name=" + name, "pos=(%4.2f,%4.2f)".formatted(x, y),
+                "size=(" + width + "x" + height + ")", "vel=(%4.2f,%4.2f)".formatted(vx, vy) };
     }
 
 }

@@ -8,6 +8,14 @@ import java.awt.Stroke;
 import core.App;
 import core.entity.World;
 
+/**
+ * A render plugin for rendering World entities. It handles drawing the sky and
+ * ground colors, as well as the world boundaries.
+ * 
+ * @see World
+ * @see RenderPlugin
+ * 
+ */
 public class WorldRenderPlugin implements RenderPlugin<World> {
     public WorldRenderPlugin() {
     }
@@ -20,8 +28,8 @@ public class WorldRenderPlugin implements RenderPlugin<World> {
     @Override
     public void render(World world, Graphics2D g) {
         g.setColor(world.getSkyColor());
-        g.fillRect((int) world.getX() - world.getWidth(), (int) world.getY()-world.getHeight(), (int) world.getWidth() * 3,
-                (int) world.getHeight() * 2);
+        g.fillRect((int) world.getX() - world.getWidth(), (int) world.getY() - world.getHeight(),
+                (int) world.getWidth() * 3, (int) world.getHeight() * 2);
 
         g.setColor(world.getGroundColor());
         g.fillRect((int) world.getX() - world.getWidth(), (int) world.getY() + world.getHeight(),

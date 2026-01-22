@@ -24,6 +24,13 @@ import core.scene.Scene;
 import core.utils.InputHandler;
 import core.utils.Service;
 
+/**
+ * Renderer service responsible for rendering entities onto the screen.
+ * 
+ * @author Frédéric Delorme
+ * @since 2026
+ * @version 0.0.1
+ */
 public class Renderer extends Service {
     private App app;
     private JFrame window;
@@ -65,6 +72,8 @@ public class Renderer extends Service {
 
         registerPlugin(new GameObjectRenderPlugin());
         registerPlugin(new WorldRenderPlugin());
+        // registerPlugin(new CameraRenderPlugin());
+        registerPlugin(new DebugRenderPlugin());
 
         log(Renderer.class, App.LogLevel.INFO, "Renderer initialized.");
     }
@@ -124,7 +133,7 @@ public class Renderer extends Service {
             g.translate(-camera.getX(), -camera.getY());
         }
         renderPlugins.stream().filter(plugin -> plugin.getSupportedEntityType().isAssignableFrom(entity.getClass()))
-                .findFirst().ifPresent(plugin -> {
+                .forEach(plugin -> {
                     // Safe to cast because of the isAssignableFrom check
                     @SuppressWarnings("unchecked")
                     RenderPlugin<Entity<?>> castedPlugin = (RenderPlugin<Entity<?>>) plugin;

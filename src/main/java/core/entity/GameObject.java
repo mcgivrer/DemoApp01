@@ -9,6 +9,9 @@ public class GameObject extends Entity<GameObject> {
     private Color fillColor = Color.BLUE;
     private Color edgeColor = Color.WHITE;
 
+    private boolean solid = true;
+    private boolean contact = false;
+
     public GameObject(String name) {
         super(name);
     }
@@ -30,11 +33,6 @@ public class GameObject extends Entity<GameObject> {
         return edgeColor;
     }
 
-    public String[] getDebugInfo() {
-        return new String[] { "GameObject ID: " + this.getId(), "Name: " + this.getName(),
-                "Position: (" + this.getX() + ", " + this.getY() + ")",
-                "Size: (" + this.getWidth() + " x " + this.getHeight() + ")" };
-    }
 
     public GameObject setFillColor(Color fillColor) {
         this.fillColor = fillColor;
@@ -46,4 +44,33 @@ public class GameObject extends Entity<GameObject> {
         return this;
     }
 
+    public boolean isSolid() {
+        return solid;
+    }
+
+    public GameObject setSolid(boolean solid) {
+        this.solid = solid;
+        return this;
+    }
+
+    public boolean isContact() {
+        return contact;
+    }
+
+    public GameObject setContact(boolean contact) {
+        this.contact = contact;
+        return this;
+    }
+
+    public String[] getDebugInfo() {
+        return new String[] { 
+            "GameObject ID: " + this.getId(), 
+            "Name: " + this.getName(),
+            "Position: (" + this.getX() + ", " + this.getY() + ")",
+            "Size: (" + this.getWidth() + " x " + this.getHeight() + ")",
+            "Velocity: (" + this.getVx() + ", " + this.getVy() + ")",
+            "Solid: " + this.isSolid(),
+            "Contact: " + this.isContact()
+         };
+    }
 }

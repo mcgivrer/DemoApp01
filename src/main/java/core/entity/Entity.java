@@ -16,6 +16,8 @@ public class Entity<T> {
     private boolean active = true;
     private boolean visible = true;
 
+    private int debugLevel = 1;
+
     public float x, y;
     public int width, height;
     public float vx, vy;
@@ -23,14 +25,16 @@ public class Entity<T> {
     public float angle = 0f;
     // Vitesse angulaire (en degrés/seconde)
     public float va = 0f;
-        public T setVa(float va) {
-            this.va = va;
-            return (T) this;
-        }
 
-        public float getVa() {
-            return va;
-        }
+    public T setVa(float va) {
+        this.va = va;
+        return (T) this;
+    }
+
+    public float getVa() {
+        return va;
+    }
+
     public T setAngle(float angle) {
         this.angle = angle;
         return (T) this;
@@ -149,6 +153,11 @@ public class Entity<T> {
         return (T) this;
     }
 
+    public T setDebugLevel(int level) {
+        this.debugLevel = level;
+        return (T) this;
+    }
+
     public Layer getLayer() {
         return layer;
     }
@@ -162,16 +171,14 @@ public class Entity<T> {
         return material;
     }
 
+    public int getDebugLevel() {
+        return debugLevel;
+    }
+
     public String[] getDebugInfo() {
-        return new String[] {
-            "id=" + id,
-            "name=" + name,
-            "pos=(%4.2f,%4.2f)".formatted(x, y),
-            "size=(" + width + "x" + height + ")",
-            "vel=(%4.2f,%4.2f)".formatted(vx, vy),
-            "angle=%4.2f".formatted(angle),
-            "va=%4.2f".formatted(va)
-        };
+        return new String[] { "id=" + id, "name=" + name, "pos=(%4.2f,%4.2f)".formatted(x, y),
+                "size=(" + width + "x" + height + ")", "vel=(%4.2f,%4.2f)".formatted(vx, vy),
+                "angle=%4.2f".formatted(angle), "va=%4.2f".formatted(va) };
     }
 
 }

@@ -42,7 +42,7 @@ public class Service {
      * 
      * @param config Configuration properties for the service.
      */
-    public void initialize(Properties config) {
+    public void initialize(Configuration config) {
     }
 
     /**
@@ -84,7 +84,7 @@ public class Service {
      * 
      * @param config Configuration properties for the services.
      */
-    public static void initializeAll(Properties config) {
+    public static void initializeAll(Configuration config) {
         for (var service : services) {
             service.initialize(config);
         }

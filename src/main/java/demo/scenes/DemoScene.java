@@ -75,7 +75,7 @@ public class DemoScene extends Scene {
         GameObject player = new GameObject("player")
                 .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2).setSize(24, 32)
                 .setVelocity(0, 0).setFillColor(Color.GREEN).setEdgeColor(Color.GREEN.darker().darker())
-                .setMaterial(Material.WOOD).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
+                .setMaterial(Material.WOOD).setDebugLevel(2).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
                 .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()));
         addEntity(player);
 
@@ -97,7 +97,7 @@ public class DemoScene extends Scene {
                             (float) (Math.random() * (world.getHeight() - 16)))
                     .setSize(16, 16).setVelocity(0, 0).setFillColor(Color.RED).setEdgeColor(Color.RED.darker().darker())
                     .setMaterial(Material.SUPERBALL).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
-                    .add(new WorldContainedBehavior(world));
+                    .setDebugLevel(3).add(new WorldContainedBehavior(world));
             midLayer.add(ball);
             addEntity(ball);
         }

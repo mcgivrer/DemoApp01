@@ -25,21 +25,11 @@ public class DebugRenderPlugin implements RenderPlugin<Entity<?>> {
     @Override
     public void render(Entity<?> entity, Graphics2D g) {
         if (App.debug > 0) {
-            if (entity.getDebugInfo() != null) {
-                g.setFont(g.getFont().deriveFont(10f));
-                g.setColor(Color.ORANGE);
-                for (int i = 0; i < entity.getDebugInfo().length; i++) {
-                    g.drawString(entity.getDebugInfo()[i], (int) entity.getX() + entity.width + 4+0.5f,
-                            (int) entity.getY() + (i * 11)+0.5f);
-                }
-            }
             g.setColor(Color.CYAN);
             // Affiche la direction de la vitesse
-            g.drawLine(
-                (int) (entity.x + entity.width / 2), 
-                (int) (entity.y + entity.height / 2),
-                (int) (entity.x + entity.width / 2 + entity.vx * 0.25f),
-                (int) (entity.y + entity.height / 2 + entity.vy * 0.25f));
+            g.drawLine((int) (entity.x + entity.width / 2), (int) (entity.y + entity.height / 2),
+                    (int) (entity.x + entity.width / 2 + entity.vx * 0.25f),
+                    (int) (entity.y + entity.height / 2 + entity.vy * 0.25f));
 
             // Affiche l'axe de rotation
             double angleRad = Math.toRadians(entity.getAngle());
@@ -50,7 +40,17 @@ public class DebugRenderPlugin implements RenderPlugin<Entity<?>> {
             int ay = (int) (cy + Math.sin(angleRad) * len);
             g.setColor(Color.MAGENTA);
             g.drawLine(cx, cy, ax, ay);
+            if (App.debug > entity.getDebugLevel()) {
+                if (entity.getDebugInfo() != null) {
+                    g.setFont(g.getFont().deriveFont(10f));
+                    g.setColor(Color.ORANGE);
+                    for (int i = 0; i < entity.getDebugInfo().length; i++) {
+                        g.drawString(entity.getDebugInfo()[i], (int) entity.getX() + entity.width + 4 + 0.5f,
+                                (int) entity.getY() + (i * 11) + 0.5f);
+                    }
+                }
 
+            }
         }
 
     }

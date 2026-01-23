@@ -7,6 +7,7 @@ import java.util.Properties;
 import core.App;
 import core.entity.Camera;
 import core.entity.Entity;
+import core.utils.Configuration;
 
 /**
  * Represents a scene in the application, managing a collection of entities.
@@ -86,7 +87,7 @@ public class Scene extends Entity<Scene> {
      * 
      * @param config Configuration properties for scenes initialization.
      */
-    public static void initialize(Properties config) {
+    public static void initialize(Configuration config) {
         scenes.clear();
         // Loading scene classes and creae instances from configuration.
         String[] parts = config.getProperty("scenes", "demo:demo.scenes.DemoScene").split(",");

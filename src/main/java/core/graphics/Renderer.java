@@ -11,7 +11,6 @@ import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -21,6 +20,7 @@ import core.App.AppMode;
 import core.entity.Camera;
 import core.entity.Entity;
 import core.scene.Scene;
+import core.utils.Configuration;
 import core.utils.InputHandler;
 import core.utils.Service;
 
@@ -67,12 +67,12 @@ public class Renderer extends Service {
      * render plugins.
      */
     @Override
-    public void initialize(Properties config) {
+    public void initialize(Configuration config) {
 
         Dimension winSize = new Dimension(800, 600);
         if (config.containsKey("window.width") && config.containsKey("window.height")) {
-            int width = Integer.parseInt(config.getProperty("window.width"));
-            int height = Integer.parseInt(config.getProperty("window.height"));
+            int width = Integer.parseInt(config.getProperty("window.width", "800"));
+            int height = Integer.parseInt(config.getProperty("window.height", "600"));
             winSize = new Dimension(width, height);
         }
 

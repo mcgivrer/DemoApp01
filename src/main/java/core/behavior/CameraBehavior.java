@@ -32,10 +32,10 @@ public class CameraBehavior implements Behavior<Camera> {
         Camera camera = (Camera) cam;
         Entity<?> target = camera.getTarget();
         if (target != null) {
-            float targetCenterX = target.x + target.width / 2.0f;
-            float targetCenterY = target.y + target.height / 2.0f;
-            float cameraHalfWidth = camera.width / 2.0f;
-            float cameraHalfHeight = camera.height / 2.0f;
+            float targetCenterX = target.x + target.width * offsetX;
+            float targetCenterY = target.y + target.height * offsetY;
+            float cameraHalfWidth = camera.width * offsetX;
+            float cameraHalfHeight = camera.height * offsetY;
             if (window == null) {
                 // Centre la caméra sur la target (offset relatif à la taille de la caméra)
                 float desiredX = targetCenterX - cameraHalfWidth;
@@ -44,8 +44,8 @@ public class CameraBehavior implements Behavior<Camera> {
                 camera.y += (desiredY - camera.y) * camera.getTweenFactor() * deltaTime;
             } else {
                 // Centre la target au centre de la fenêtre
-                float windowHalfWidth = window.getWidth() / 2.0f;
-                float windowHalfHeight = window.getHeight() / 2.0f;
+                float windowHalfWidth = window.getWidth() * offsetX;
+                float windowHalfHeight = window.getHeight() * offsetY;
                 float desiredX = targetCenterX - windowHalfWidth;
                 float desiredY = targetCenterY - windowHalfHeight;
                 camera.x += (desiredX - camera.x) * camera.getTweenFactor() * deltaTime;

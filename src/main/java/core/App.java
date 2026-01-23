@@ -1,15 +1,14 @@
 package core;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 
 import core.graphics.Renderer;
 import core.physics.PhysicsEngine;
 import core.scene.Scene;
+import core.utils.Configuration;
 import core.utils.InputHandler;
 import core.utils.Service;
 
@@ -38,13 +37,13 @@ public class App {
     }
 
     public static ResourceBundle messages = ResourceBundle.getBundle("i18n/messages");
-    private Properties config = new Properties();
 
     public static int debug = 0;
     public static AppMode mode = AppMode.DEVELOPMENT;
 
     public static boolean exit = false;
 
+    public Configuration config = null;
     private PhysicsEngine physicsEngine;
     private Renderer renderer;
     public InputHandler inputHandler;
@@ -70,26 +69,9 @@ public class App {
     }
 
     private void initialize(String[] args) {
-        // set default values
-        log(getClass(), LogLevel.INFO, "Set default configuration");
-        config.setProperty("debug", "0");
-        config.setProperty("mode", "DEVELOPMENT");
-        config.setProperty("timeout", "1000");
-        parseConfiguration();
-        log(App.class, LogLevel.INFO, "  -> default configuration initialized");
-        // parse configuration file
-        try {
-            log(getClass(), LogLevel.INFO, "Load configuration from file");
-            config.load(App.class.getResourceAsStream("/config.properties"));
-            log(App.class, LogLevel.INFO, "  loaded config.properties");
-            parseConfiguration();
-            log(App.class, LogLevel.INFO, "  -> configuration loaded");
-        } catch (IOException e) {
-            log(App.class, LogLevel.ERROR, "  cannot load config.properties: %s", e.getMessage());
-        }
-        // parse command line arguments
-        parseCliArgs(args);
-        parseConfiguration();
+        log(getClass(), LogLevel.INFO, "Initialize App class...");
+        config = new Configuration(args);
+
         log(App.class, LogLevel.INFO, "  -> configuration from args parsed");
     }
 
@@ -147,61 +129,6 @@ public class App {
     private void draw(float elapsed, Map<String, Object> stats) {
         renderer.update(Scene.getActiveScene(), elapsed, stats);
 
-    }
-
-    private void parseConfiguration() {
-        for (String key : config.stringPropertyNames()) {
-            parseConfig(key, config.getProperty(key));
-        }
-    }
-
-    private void parseCliArgs(String[] args) {
-        if (args.length > 0) {
-            log(getClass(), LogLevel.INFO, "parse args:");
-            int i = 0;
-            for (String arg : args) {
-                log(getClass(), LogLevel.INFO, "- arg[%d]: %s", i++, arg);
-                parseArg(arg);
-            }
-        } else {
-            log(getClass(), LogLevel.INFO, "- no argument...");
-        }
-    }
-
-    private void parseArg(String arg) {
-        if (arg.contains("=")) {
-            String[] key = arg.split("=", 2);
-            config.setProperty(key[0], key[1]);
-        } else {
-            config.setProperty(arg, "true");
-        }
-    }
-
-    private void parseConfig(String key, String value) {
-        // first is config key.value, then last possible cli key args.
-        switch (key.toLowerCase().trim()) {
-        // set debug level from config file or CLI key-value pair
-        case "debug" -> {
-            debug = Integer.parseInt(value);
-            log(getClass(), LogLevel.INFO, "  set debug level to %d", debug);
-        }
-        case "mode" -> {
-            mode = AppMode.valueOf(value.toUpperCase());
-            log(getClass(), LogLevel.INFO, "  set app mode to %s", value);
-        }
-        case "h", "-h", "help", "-help" -> {
-            log(getClass(), LogLevel.INFO, "  help requested, exiting...");
-            System.out.println("Usage: java -jar app.jar [key=value]...\n" + "Available options:\n"
-                    + "  debug=<level>       Set debug level (0=none, 1=some, 2=verbose)\n"
-                    + "  mode=<mode>         Set application mode (DEVELOPMENT, TESTING, PRODUCTION)\n"
-                    + "  winsize=<WxH>       Set window size (e.g., 800x600)\n"
-                    + "  help                Show this help message");
-            System.exit(0);
-        }
-        default -> {
-            log(getClass(), LogLevel.WARN, "  unknown argument: %s=%s", key, value);
-        }
-        }
     }
 
     public static void main(String[] args) {

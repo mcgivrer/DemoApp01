@@ -76,13 +76,33 @@ public class Configuration {
             App.mode = AppMode.valueOf(value.toUpperCase());
             log(getClass(), LogLevel.INFO, "  set app mode to %s", App.mode);
         }
+        case "winsize", "window.size", "windowsize" -> {
+            String[] dimensions = value.toLowerCase().split("x");
+            if (dimensions.length == 2) {
+                int width = Integer.parseInt(dimensions[0]);
+                int height = Integer.parseInt(dimensions[1]);
+                log(getClass(), LogLevel.INFO, "  set window size to %dx%d", width, height);
+            } else {
+                log(getClass(), LogLevel.WARN, "  invalid window size format: %s", value);
+            }
+        }
+        case "scenes" -> {
+            String[] sceneNames = value.split(",");
+            //Scene.registerAvailableScenes(sceneNames);
+            log(getClass(), LogLevel.INFO, "  registered scenes: %s", String.join(", ", sceneNames));
+        }
+        case "defaultscene" -> {
+            log(getClass(), LogLevel.INFO, "  set default scene to %s", value);
+        }            
         case "h", "-h", "help", "-help" -> {
             log(getClass(), LogLevel.INFO, "  help requested, exiting...");
             System.out.println("Usage: java -jar app.jar [key=value]...\n" + "Available options:\n"
-                    + "  debug=<level>       Set debug level (0=none, 1=some, 2=verbose)\n"
-                    + "  mode=<mode>         Set application mode (DEVELOPMENT, TESTING, PRODUCTION)\n"
-                    + "  winsize=<WxH>       Set window size (e.g., 800x600)\n"
-                    + "  help                Show this help message");
+                    + "  debug=<level>             Set debug level (0=none, 1=some, 2=verbose)\n"
+                    + "  mode=<mode>               Set application mode (DEVELOPMENT, TESTING, PRODUCTION)\n"
+                    + "  winsize=<WxH>             Set window size (e.g., 800x600)\n"
+                    + "  scenes=<k1:s1,k2:s2,...>  Register available scenes\n"
+                    + "  defaultscene=<scene>      Set default scene to load\n"
+                    + "  help                      Show this help message");
             System.exit(0);
         }
         default -> {

@@ -1,6 +1,8 @@
 package core.behavior;
 
 import core.entity.Entity;
+import core.entity.GameObject;
+import core.entity.PhysicType;
 
 /**
  * Behavior that updates an entity's position based on its velocity. The
@@ -14,15 +16,18 @@ import core.entity.Entity;
 public class VelocityBehavior implements Behavior<Entity<?>> {
     @Override
     public void update(Entity<?> entity, float deltaTime) {
-        entity.x += entity.vx * deltaTime;
-        entity.y += entity.vy * deltaTime;
-        // Si l'entité possède une vitesse angulaire (va), on met à jour l'angle
-        try {
-            java.lang.reflect.Field vaField = entity.getClass().getField("va");
-            float va = vaField.getFloat(entity);
-            entity.setAngle(entity.getAngle() + va * deltaTime);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            // Pas de champ va, on ignore
+        // Only apply to DYNAMIC GameObjects
+        if ((entity instanceof GameObject go) && (go.getPhysicType().equals(PhysicType.DYNAMIC))) {
+            entity.x += entity.vx * deltaTime;
+            entity.y += entity.vy * deltaTime;
+            // Si l'entité possède une vitesse angulaire (va), on met à jour l'angle
+            try {
+                java.lang.reflect.Field vaField = entity.getClass().getField("va");
+                float va = vaField.getFloat(entity);
+                entity.setAngle(entity.getAngle() + va * deltaTime);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                // Pas de champ va, on ignore
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ package core.entity;
 
 import java.awt.Color;
 import java.awt.Polygon;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class GameObject extends Entity<GameObject> {
@@ -10,10 +11,12 @@ public class GameObject extends Entity<GameObject> {
     private Color fillColor = Color.BLUE;
     private Color edgeColor = Color.WHITE;
 
-    private PhysicsType solid = PhysicsType.DYNAMIC;
     private boolean contact = false;
 
     private Polygon polygon;
+    private Rectangle2D boundingBox = new Rectangle2D.Double(0, 0, 0, 0);
+
+    PhysicType physicsType = PhysicType.DYNAMIC;
 
     public GameObject(String name) {
         super(name);
@@ -55,12 +58,12 @@ public class GameObject extends Entity<GameObject> {
         return this;
     }
 
-    public PhysicsType getPhysicType() {
-        return solid;
+    public PhysicType getPhysicsType() {
+        return physicsType;
     }
 
-    public GameObject setPhysicType(PhysicsType solid) {
-        this.solid = solid;
+    public GameObject setPhysicsType(PhysicType physicsType) {
+        this.physicsType = physicsType;
         return this;
     }
 
@@ -77,8 +80,23 @@ public class GameObject extends Entity<GameObject> {
         return new String[] { "GameObject ID: " + this.getId(), "Name: " + this.getName(),
                 "Position: (" + this.getX() + ", " + this.getY() + ")",
                 "Size: (" + this.getWidth() + " x " + this.getHeight() + ")",
-                "Velocity: (" + this.getVx() + ", " + this.getVy() + ")", "physicsType: " + this.getPhysicType(),
+                "Velocity: (" + this.getVx() + ", " + this.getVy() + ")", "physicsType: " + this.getPhysicsType(),
                 "Contact: " + this.isContact() };
+    }
+
+    public Rectangle2D getBoundingBox() {
+        return boundingBox;
+    }
+
+    /**
+     * Sets the bounding box for this GameObject.
+     * 
+     * @param box the bounding box to set
+     * @return this GameObject instance
+     */
+    public GameObject setBoundingBox(Rectangle2D box) {
+        this.boundingBox = box;
+        return this;
     }
 
 }

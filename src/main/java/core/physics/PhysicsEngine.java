@@ -7,6 +7,8 @@ import java.util.Properties;
 
 import core.App;
 import core.entity.Entity;
+import core.entity.GameObject;
+import core.entity.PhysicType;
 import core.scene.Scene;
 
 /**
@@ -52,8 +54,11 @@ public class PhysicsEngine extends core.utils.Service {
             behavior.update((Entity<?>) scene, deltaTime);
         }
         // update scene entities.
-        scene.getEntities().stream().filter(Entity::isActive).forEach(entity -> {
-            entity.getBehaviors().forEach(behavior -> behavior.update((Entity<?>) entity, deltaTime));
+        scene.getEntities().stream()
+            .filter(Entity::isActive)
+            .forEach(entity -> {
+                entity.getBehaviors()
+                    .forEach(behavior -> behavior.update((Entity<?>) entity, deltaTime));
         });
     }
 

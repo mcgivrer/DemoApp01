@@ -1,6 +1,8 @@
 package core.behavior;
 
 import core.entity.Entity;
+import core.entity.GameObject;
+import core.entity.PhysicType;
 
 /**
  * Behavior that applies a gravitational force to an entity by modifying its
@@ -10,7 +12,7 @@ import core.entity.Entity;
  * 
  * @see Entity
  */
-public class GravityBehavior implements Behavior<Entity<?>> {
+public class GravityBehavior implements Behavior<GameObject> {
     public float gravity = 9.81f;
     public float gravityScale = 2500.0f;
 

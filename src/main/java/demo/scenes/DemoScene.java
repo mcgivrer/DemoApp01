@@ -120,10 +120,17 @@ public class DemoScene extends Scene {
 
         // add a player entity
         GameObject player = new GameObject("player")
-                .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2).setSize(24, 32)
-                .setVelocity(0, 0).setFillColor(Color.GREEN).setEdgeColor(Color.GREEN.darker().darker())
-                .setMaterial(Material.ICE).setMass(70.0f).setDebugLevel(2).setPriority(10).setAttribute("speed", 2000f)
-                .setAttribute("angularSpeed", 5f).setAttribute("jumpFactor", 4.0f)
+                .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2)
+                .setSize(24, 32)
+                .setVelocity(0, 0)
+                .setGravityCenter(12,28)
+                .setMaterial(Material.WOOD)
+                .setMass(70.0f).setDebugLevel(2)
+                .setFillColor(Color.GREEN)
+                .setEdgeColor(Color.GREEN.darker().darker())
+                .setPriority(10).setAttribute("speed", 2000f)
+                .setAttribute("angularSpeed", 5f)
+                .setAttribute("jumpFactor", 4.0f)
                 .add(new GravityBehavior(world.getGravity())).add(new VelocityBehavior())
                 .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()))
                 .add(new DefaultCollisionResponseBehavior());

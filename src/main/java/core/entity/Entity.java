@@ -1,6 +1,5 @@
 package core.entity;
 
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +7,7 @@ import java.util.Map;
 
 import core.behavior.Behavior;
 import core.graphics.Layer;
+import core.physics.BoundingShape;
 import core.physics.Material;
 
 public class Entity<T> {
@@ -46,7 +46,9 @@ public class Entity<T> {
     protected List<Behavior<?>> behaviors = new ArrayList<>();
 
     protected Map<String, Object> attributes = new HashMap<>();
-    private Rectangle2D boundingBox = new Rectangle2D.Float();
+    
+    /** The bounding shape for collision detection (OBB or Ellipse). */
+    private BoundingShape boundingShape;
 
     public Entity(String name) {
         this.name = name;
@@ -83,7 +85,6 @@ public class Entity<T> {
     public T setPosition(float x, float y) {
         this.x = x;
         this.y = y;
-        boundingBox.setRect(x, y, width, height);
         return (T) this;
     }
 
@@ -93,7 +94,6 @@ public class Entity<T> {
         // Recalculate default gravity center to geometric center
         this.gravityCenterX = width / 2.0f;
         this.gravityCenterY = height / 2.0f;
-        boundingBox.setRect(x, y, width, height);
         return (T) this;
     }
 
@@ -121,9 +121,35 @@ public class Entity<T> {
     }
 
     /**
+     * Returns the X coordinate of the geometric center in world space.
+     * This is always the center of the bounding box (x + width/2).
+     *
+     * @return The X coordinate of the geometric center.
+     */
+    public float getGeometricCenterX() {
+        return x + width / 2.0f;
+    }
+
+    /**
+     * Returns the Y coordinate of the geometric center in world space.
+     * This is always the center of the bounding box (y + height/2).
+     *
+     * @return The Y coordinate of the geometric center.
+     */
+    public float getGeometricCenterY() {
+        return y + height / 2.0f;
+    }
+
+    /**
      * Returns the X coordinate of the gravity center in world space.
      * Defaults to geometric center unless overridden via
      * {@link #setGravityCenterX(float)}.
+     * <p>
+     * <strong>Note:</strong> For collision detection, use {@link #getGeometricCenterX()}
+     * instead. The gravity center affects rotational physics (inertia, angular impulse)
+     * but not collision detection geometry.
+     *
+     * @return The X coordinate of the gravity center.
      */
     public float getCenterX() {
         return x + gravityCenterX;
@@ -133,6 +159,12 @@ public class Entity<T> {
      * Returns the Y coordinate of the gravity center in world space.
      * Defaults to geometric center unless overridden via
      * {@link #setGravityCenterY(float)}.
+     * <p>
+     * <strong>Note:</strong> For collision detection, use {@link #getGeometricCenterY()}
+     * instead. The gravity center affects rotational physics (inertia, angular impulse)
+     * but not collision detection geometry.
+     *
+     * @return The Y coordinate of the gravity center.
      */
     public float getCenterY() {
         return y + gravityCenterY;
@@ -295,8 +327,41 @@ public class Entity<T> {
                 "gc=(%4.2f,%4.2f)".formatted(gravityCenterX, gravityCenterY) };
     }
 
-    public Rectangle2D getBounds() {
-        return this.boundingBox;
+    /**
+     * Returns the bounding shape of this entity for collision detection.
+     * <p>
+     * For RECTANGLE and LINE shapes, returns an Oriented Bounding Box (OBB)
+     * with 4 corners computed from position, size, and rotation angle.
+     * For CIRCLE shapes, returns an Ellipse with the entity's dimensions.
+     * <p>
+     * The bounding shape is lazily created and updated on each call.
+     *
+     * @return The BoundingShape for collision detection.
+     */
+    public BoundingShape getBounds() {
+        // Create bounding shape if needed
+        if (boundingShape == null) {
+            if (shapeType == ShapeType.CIRCLE) {
+                boundingShape = BoundingShape.createEllipse();
+            } else {
+                boundingShape = BoundingShape.createOBB();
+            }
+        }
+
+        // Update based on shape type
+        if (shapeType == ShapeType.CIRCLE) {
+            // Ellipse centered on the entity with radii = half dimensions
+            boundingShape.updateEllipse(
+                x + width / 2.0f,
+                y + height / 2.0f,
+                width / 2.0f,
+                height / 2.0f);
+        } else {
+            // OBB for RECTANGLE, LINE, and other shapes
+            boundingShape.updateOBB(x, y, width, height, angle);
+        }
+
+        return boundingShape;
     }
 
 }

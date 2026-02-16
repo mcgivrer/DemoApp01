@@ -36,17 +36,19 @@ public class PlayerInputBehavior implements Behavior<GameObject> {
         } else if (inputHandler.isKeyPressed(KeyEvent.VK_RIGHT) || inputHandler.isKeyPressed(KeyEvent.VK_S)) {
             entity.setVx(speed);
         } else {
+            // Apply friction only to horizontal movement (player-controlled)
             entity.setVx(entity.getVx() * friction);
         }
 
-        // vertical movement
+        // vertical movement (jump/down input only)
+        // Do NOT apply friction to vy - gravity handles vertical physics
         if (inputHandler.isKeyPressed(KeyEvent.VK_UP) || inputHandler.isKeyPressed(KeyEvent.VK_Z)) {
+            // Apply jump impulse (contact check would require collision detection before input)
             entity.setVy(-speed * jumpFactor);
         } else if (inputHandler.isKeyPressed(KeyEvent.VK_DOWN) || inputHandler.isKeyPressed(KeyEvent.VK_W)) {
             entity.setVy(speed);
-        } else {
-            entity.setVy(entity.getVy() * friction);
         }
+        // No else - let gravity control vy naturally
 
         // rotation
         float angularSpeed = entity.getAttribute("angularSpeed", 90.0f); // degrés/seconde

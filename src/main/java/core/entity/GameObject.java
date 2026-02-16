@@ -2,7 +2,6 @@ package core.entity;
 
 import java.awt.Color;
 import java.awt.Polygon;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class GameObject extends Entity<GameObject> {
@@ -14,7 +13,6 @@ public class GameObject extends Entity<GameObject> {
     private boolean contact = false;
 
     private Polygon polygon;
-    private Rectangle2D boundingBox = new Rectangle2D.Double(0, 0, 0, 0);
 
     PhysicsType physicsType = PhysicsType.DYNAMIC;
 
@@ -89,21 +87,6 @@ public class GameObject extends Entity<GameObject> {
                 "Size: (" + this.getWidth() + " x " + this.getHeight() + ")",
                 "Velocity: (" + this.getVx() + ", " + this.getVy() + ")", "physicsType: " + this.getPhysicsType(),
                 "Contact: " + this.isContact() };
-    }
-
-    public Rectangle2D getBoundingBox() {
-        return boundingBox;
-    }
-
-    /**
-     * Sets the bounding box for this GameObject.
-     * 
-     * @param box the bounding box to set
-     * @return this GameObject instance
-     */
-    public GameObject setBoundingBox(Rectangle2D box) {
-        this.boundingBox = box;
-        return this;
     }
 
     /**

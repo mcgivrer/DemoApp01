@@ -16,8 +16,8 @@ import core.utils.Service;
 
 /**
  * Manages collision <strong>detection</strong> between {@link GameObject} entities
- * in a {@link Scene}. Uses AABB (Axis-Aligned Bounding Box) intersection tests
- * and computes overlap along each axis (SAT-lite).
+ * in a {@link Scene}. Uses oriented bounding shapes (OBB for rectangles/lines,
+ * ellipses for circles) with the Separating Axis Theorem (SAT) for intersection tests.
  * <p>
  * Collision <strong>response</strong> is delegated to {@link CollisionBehavior}
  * instances attached to each entity. The manager filters each entity's behaviors
@@ -27,13 +27,14 @@ import core.utils.Service;
  *
  * @see CollisionBehavior
  * @see CollisionEvent
+ * @see BoundingShape
  * @see GameObject
  * @see PhysicsType
  * @see Scene
  *
  * @author Frédéric Delorme
  * @since 2026
- * @version 0.0.3
+ * @version 0.0.4
  */
 public class CollisionManager extends Service {
 
@@ -99,12 +100,13 @@ public class CollisionManager extends Service {
                 if (goA.getPhysicsType() == PhysicsType.NONE
                         || goB.getPhysicsType() == PhysicsType.NONE) continue;
 
-                // --- Broad phase: AABB intersection ---
+                // --- Broad/Narrow phase: OBB/Ellipse intersection (SAT) ---
                 if (!goA.getBounds().intersects(goB.getBounds())) continue;
 
                 // --- Narrow phase: compute overlap on each axis ---
-                float dx = goA.getCenterX() - goB.getCenterX();
-                float dy = goA.getCenterY() - goB.getCenterY();
+                // Use geometric center (not gravity center) for collision detection
+                float dx = goA.getGeometricCenterX() - goB.getGeometricCenterX();
+                float dy = goA.getGeometricCenterY() - goB.getGeometricCenterY();
 
                 float halfWidthSum = (goA.getWidth() + goB.getWidth()) / 2.0f;
                 float halfHeightSum = (goA.getHeight() + goB.getHeight()) / 2.0f;

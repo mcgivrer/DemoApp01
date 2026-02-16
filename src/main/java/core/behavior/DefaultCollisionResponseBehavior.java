@@ -208,8 +208,142 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
         float deltaOmegaT = jt * rCrossTSelf * invInertiaSelf;
         self.setVa(self.getVa() + (float) Math.toDegrees(deltaOmegaT));
 
+        // --- Corner stabilization for RECTANGLE shapes ---
+        // When a rectangle touches a surface at a corner, rotate it so that
+        // one of its faces becomes parallel to the contact surface.
+        applyCornerStabilization(self, nx, ny);
+
         // --- Clamp to safe bounds ---
         clampVelocities(self);
+    }
+
+    /**
+     * Stabilization threshold in degrees: when the rectangle's angle is within
+     * this distance from a stable orientation, snap to that orientation.
+     */
+    private static final float CORNER_STABILIZATION_THRESHOLD = 3.0f;
+
+    /**
+     * Angular velocity applied to rotate the rectangle towards a stable face
+     * when a corner touches a surface (degrees/s).
+     */
+    private static final float CORNER_STABILIZATION_TORQUE = 360.0f;
+
+    /**
+     * When a RECTANGLE shape touches a surface at a corner (i.e., its angle is not
+     * aligned with the surface normal), this method applies a corrective angular
+     * velocity to rotate it so that one of its faces becomes parallel to the surface.
+     * <p>
+     * The target angle is computed based on the collision normal direction. For example:
+     * <ul>
+     *   <li>Normal (0, -1) = horizontal floor → target angles: 0°, 90°, 180°, 270°</li>
+     *   <li>Normal (-1, 0) = vertical right wall → target angles: 0°, 90°, 180°, 270°</li>
+     *   <li>Normal at 45° slope → target angles offset by 45°</li>
+     * </ul>
+     * <p>
+     * The rotation direction is determined by the gravity center position: the object
+     * will naturally tip in the direction that brings the gravity center lower.
+     *
+     * @param self The rectangle game object.
+     * @param nx   The collision normal X component.
+     * @param ny   The collision normal Y component.
+     */
+    private void applyCornerStabilization(GameObject self, float nx, float ny) {
+        // Only apply to RECTANGLE shapes
+        if (self.getShapeType() != ShapeType.RECTANGLE) {
+            return;
+        }
+
+        // Compute the surface angle from the collision normal
+        // The normal points perpendicular to the surface, so the surface angle is normal angle + 90°
+        // Normal angle = atan2(ny, nx), but we want the surface to be parallel
+        float surfaceAngle = (float) Math.toDegrees(Math.atan2(ny, nx));
+        // Convert to [0, 360)
+        surfaceAngle = surfaceAngle % 360f;
+        if (surfaceAngle < 0) surfaceAngle += 360f;
+
+        // Normalize current angle to [0, 360)
+        float angle = self.angle % 360f;
+        if (angle < 0) angle += 360f;
+
+        // For a rectangle to have a face parallel to the surface, its angle should be:
+        // surfaceAngle + 90° (perpendicular to normal) + k*90° for each face
+        // So stable angles are: (surfaceAngle + 90°), (surfaceAngle + 180°), (surfaceAngle + 270°), (surfaceAngle)
+        // Simplified: target = surfaceAngle + 90° + k*90° = surfaceAngle + (1+k)*90°
+        
+        // Find the nearest stable angle (0°, 90°, 180°, 270° relative to surface)
+        // The rectangle face should be perpendicular to the normal (parallel to surface)
+        float baseStableAngle = surfaceAngle + 90f;
+        baseStableAngle = baseStableAngle % 360f;
+        if (baseStableAngle < 0) baseStableAngle += 360f;
+
+        // Find closest stable angle among baseStableAngle + k*90° for k in {0,1,2,3}
+        float bestTarget = baseStableAngle;
+        float bestDistance = Float.MAX_VALUE;
+        
+        for (int k = 0; k < 4; k++) {
+            float candidate = (baseStableAngle + k * 90f) % 360f;
+            
+            // Compute angular distance (shortest path)
+            float diff = candidate - angle;
+            // Normalize to [-180, 180]
+            while (diff > 180f) diff -= 360f;
+            while (diff < -180f) diff += 360f;
+            
+            float distance = Math.abs(diff);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestTarget = candidate;
+            }
+        }
+
+        // If already near a stable orientation, snap and stop
+        if (bestDistance < CORNER_STABILIZATION_THRESHOLD) {
+            self.angle = bestTarget;
+            // Damp angular velocity significantly
+            self.setVa(self.getVa() * 0.1f);
+            return;
+        }
+
+        // --- Determine rotation direction ---
+        // Compute direction to target (shortest path)
+        float diff = bestTarget - angle;
+        while (diff > 180f) diff -= 360f;
+        while (diff < -180f) diff += 360f;
+        
+        float targetDirection = Math.signum(diff);
+
+        // Also consider gravity center influence for more natural tipping
+        float gcX = self.getGravityCenterX();
+        float gcY = self.getGravityCenterY();
+        float halfW = self.getWidth() / 2.0f;
+        float halfH = self.getHeight() / 2.0f;
+        float gcOffsetX = gcX - halfW;
+        float gcOffsetY = gcY - halfH;
+
+        // Transform to world space
+        float angleRad = (float) Math.toRadians(angle);
+        float cosA = (float) Math.cos(angleRad);
+        float sinA = (float) Math.sin(angleRad);
+        float gcWorldX = gcOffsetX * cosA - gcOffsetY * sinA;
+
+        // If gravity center has significant offset, let it influence direction
+        float gcInfluenceThreshold = 0.5f;
+        if (Math.abs(gcWorldX) > gcInfluenceThreshold) {
+            // Gravity center pulls in this direction
+            float gcDirection = -Math.signum(gcWorldX);
+            // Blend with geometric shortest path (gravity center has 40% weight)
+            targetDirection = targetDirection * 0.6f + gcDirection * 0.4f;
+            targetDirection = Math.signum(targetDirection);
+        }
+
+        // Apply corrective torque proportional to distance from target
+        // Stronger correction when farther from target
+        float correctionStrength = Math.min(1.0f, bestDistance / 45f);
+        float correction = targetDirection * CORNER_STABILIZATION_TORQUE * correctionStrength;
+        
+        // Blend with existing angular velocity
+        self.setVa(self.getVa() * 0.7f + correction * 0.3f);
     }
 
     /**

@@ -1,5 +1,6 @@
 package core.entity;
 
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ public class Entity<T> {
     protected List<Behavior<?>> behaviors = new ArrayList<>();
 
     protected Map<String, Object> attributes = new HashMap<>();
+    private Rectangle2D boundingBox = new Rectangle2D.Float();
 
     public Entity(String name) {
         this.name = name;
@@ -75,12 +77,14 @@ public class Entity<T> {
     public T setPosition(float x, float y) {
         this.x = x;
         this.y = y;
+        boundingBox.setRect(x, y, width, height);
         return (T) this;
     }
 
     public T setSize(int width, int height) {
         this.width = width;
         this.height = height;
+        boundingBox.setRect(x, y, width, height);
         return (T) this;
     }
 
@@ -220,6 +224,10 @@ public class Entity<T> {
         return new String[] { "id=" + id, "name=" + name, "pos=(%4.2f,%4.2f)".formatted(x, y),
                 "size=(" + width + "x" + height + ")", "vel=(%4.2f,%4.2f)".formatted(vx, vy),
                 "angle=%4.2f".formatted(angle), "va=%4.2f".formatted(va) };
+    }
+
+    public Rectangle2D getBounds() {
+        return this.boundingBox;
     }
 
 }

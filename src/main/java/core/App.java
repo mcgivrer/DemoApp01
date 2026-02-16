@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import core.graphics.Renderer;
+import core.physics.CollisionManager;
 import core.physics.PhysicsEngine;
 import core.scene.Scene;
 import core.utils.Configuration;
@@ -48,6 +49,8 @@ public class App {
     private Renderer renderer;
     public InputHandler inputHandler;
 
+    private CollisionManager collisionManager;
+
     public App() {
         log(getClass(), LogLevel.INFO, "Start App class...");
     }
@@ -57,6 +60,7 @@ public class App {
 
         inputHandler = new InputHandler();
         physicsEngine = new PhysicsEngine(this);
+        collisionManager = new CollisionManager(this);
         renderer = new Renderer(this, inputHandler);
 
         // initialize services
@@ -122,6 +126,7 @@ public class App {
     private void update(float elapsed, Map<String, Object> stats) {
         if (Scene.currentScene != null) {
             physicsEngine.update(Scene.currentScene, elapsed, stats);
+            collisionManager.update(Scene.currentScene, elapsed, stats);
         }
 
     }

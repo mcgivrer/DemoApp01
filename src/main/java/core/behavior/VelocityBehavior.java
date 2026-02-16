@@ -21,8 +21,8 @@ public class VelocityBehavior implements Behavior<Entity<?>> {
 
         // Only apply to DYNAMIC GameObjects
         if ((entity instanceof GameObject go) && (go.getPhysicsType().equals(PhysicsType.DYNAMIC))) {
-            entity.x += entity.vx * deltaTime * timeFactor;
-            entity.y += entity.vy * deltaTime * timeFactor;
+            entity.setPosition(entity.x + entity.vx * deltaTime * timeFactor,
+                    entity.y + entity.vy * deltaTime * timeFactor);
             // Si l'entité possède une vitesse angulaire (va), on met à jour l'angle
             try {
                 java.lang.reflect.Field vaField = entity.getClass().getField("va");

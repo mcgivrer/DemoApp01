@@ -77,7 +77,7 @@ public class DemoScene extends Scene {
         GameObject player = new GameObject("player")
                 .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2).setSize(24, 32)
                 .setVelocity(0, 0).setFillColor(Color.GREEN).setEdgeColor(Color.GREEN.darker().darker())
-                .setMaterial(Material.ICE).setDebugLevel(2).setPriority(10).setAttribute("speed", 2000f)
+                .setMaterial(Material.ICE).setMass(70.0f).setDebugLevel(2).setPriority(10).setAttribute("speed", 2000f)
                 .setAttribute("angularSpeed", 5f).setAttribute("jumpFactor", 4.0f)
                 .add(new GravityBehavior(world.getGravity())).add(new VelocityBehavior())
                 .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()))
@@ -106,7 +106,8 @@ public class DemoScene extends Scene {
                     .setSize(size, size).setShapeType(ShapeType.CIRCLE)
                     .setVelocity(1500f - (3000F * (float) Math.random()), 1500f - (3000F * (float) Math.random()))
                     .setFillColor(baseColor).setEdgeColor(baseColor.darker().darker().darker())
-                    .setMaterial(Material.SUPERBALL).add(new GravityBehavior(world.getGravity()))
+                    .setMaterial(Material.SUPERBALL).setMass(size * size / 100.0f)
+                    .add(new GravityBehavior(world.getGravity()))
                     .add(new VelocityBehavior()).add(new WorldContainedBehavior(world))
                     .add(new DefaultCollisionResponseBehavior()).setDebugLevel(3);
             midLayer.add(ball);

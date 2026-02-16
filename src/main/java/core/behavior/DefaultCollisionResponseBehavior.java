@@ -7,9 +7,17 @@ import core.physics.CollisionEvent;
  * Default collision response that applies positional correction, impulse-based
  * velocity adjustment, and friction to the <em>self</em> entity only.
  * <p>
- * When both entities are DYNAMIC the correction and impulse are halved so that
- * each entity's own {@code DefaultCollisionResponseBehavior} handles its share.
- * When only {@code self} is DYNAMIC it receives the full correction.
+ * <strong>Mass-aware distribution:</strong> when both entities are DYNAMIC,
+ * positional correction and impulse are distributed according to the inverse
+ * mass ratio so that lighter entities are pushed more than heavier ones.
+ * The standard physics impulse formula is used:
+ * <pre>
+ *   j = -(1 + e) &middot; v_rel &middot; n&#x0302; / (1/m_self + 1/m_other)
+ * </pre>
+ * Each entity then receives &Delta;v = j / m.
+ * <p>
+ * When only {@code self} is DYNAMIC it receives the full correction (the
+ * other entity acts as an infinite-mass wall).
  * <p>
  * Material properties ({@link core.physics.Material#restitution()} and
  * {@link core.physics.Material#friction()}) drive the response intensity.
@@ -20,7 +28,7 @@ import core.physics.CollisionEvent;
  *
  * @author Frédéric Delorme
  * @since 2026
- * @version 0.0.1
+ * @version 0.0.2
  */
 public class DefaultCollisionResponseBehavior implements CollisionBehavior {
 
@@ -38,11 +46,24 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
             return;
         }
 
-        // --- Positional correction ---
-        float correctionFactor = otherDynamic ? 0.5f : 1.0f;
+        // --- Inverse masses ---
+        float selfMass = self.getMass();
+        float otherMass = other.getMass();
+        float invMassSelf = (selfMass > 0) ? 1.0f / selfMass : 0.0f;
+        float invMassOther = (otherDynamic && otherMass > 0) ? 1.0f / otherMass : 0.0f;
+        float invMassSum = invMassSelf + invMassOther;
+
+        // Safety: avoid division by zero (shouldn't happen if self is DYNAMIC)
+        if (invMassSum <= 0) {
+            return;
+        }
+
+        // --- Positional correction (mass-weighted) ---
+        // self's share = invMassSelf / invMassSum  (lighter → larger share)
+        float correctionRatio = invMassSelf / invMassSum;
         self.setPosition(
-                self.x + nx * penetration * correctionFactor,
-                self.y + ny * penetration * correctionFactor);
+                self.x + nx * penetration * correctionRatio,
+                self.y + ny * penetration * correctionRatio);
 
         // --- Velocity response using Material properties ---
         float restitution = Math.min(
@@ -58,11 +79,12 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
             return;
         }
 
-        float impulse = -(1 + restitution) * relVn;
-        float impulseFactor = otherDynamic ? 0.5f : 1.0f;
+        // Impulse magnitude:  j = -(1+e) * relVn / (1/m_self + 1/m_other)
+        float j = -(1 + restitution) * relVn / invMassSum;
 
-        self.vx += impulse * impulseFactor * nx;
-        self.vy += impulse * impulseFactor * ny;
+        // Apply impulse to self:  Δv = j / m_self  =  j * invMassSelf
+        self.vx += j * invMassSelf * nx;
+        self.vy += j * invMassSelf * ny;
 
         // --- Friction on tangential velocity ---
         float tx = -ny;

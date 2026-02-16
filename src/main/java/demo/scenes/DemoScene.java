@@ -82,6 +82,44 @@ public class DemoScene extends Scene {
         midLayer.add(ground);
         addEntity(ground);
 
+        GameObject leftWall = new GameObject("leftWall").setPosition(0, 0).setSize(50, window.getHeight())
+                .setFillColor(Color.DARK_GRAY).setEdgeColor(Color.BLACK).setMaterial(Material.STONE).setMass(1000f)
+                .setPhysicsType(PhysicsType.STATIC).add(new WorldContainedBehavior(world))
+                .add(new DefaultCollisionResponseBehavior());
+        midLayer.add(leftWall);
+        addEntity(leftWall);
+
+        GameObject rightWall = new GameObject("rightWall").setPosition(window.getWidth() - 50, 0)
+                .setSize(50, window.getHeight()).setFillColor(Color.DARK_GRAY).setEdgeColor(Color.BLACK)
+                .setMaterial(Material.STONE).setMass(1000f).setPhysicsType(PhysicsType.STATIC)
+                .add(new WorldContainedBehavior(world)).add(new DefaultCollisionResponseBehavior());
+        midLayer.add(rightWall);
+        addEntity(rightWall);
+
+        GameObject ceiling = new GameObject("ceiling").setPosition(0, 0).setSize(window.getWidth(), 50)
+                .setFillColor(Color.DARK_GRAY).setEdgeColor(Color.BLACK).setMaterial(Material.STONE).setMass(1000f)
+                .setPhysicsType(PhysicsType.STATIC).add(new WorldContainedBehavior(world))
+                .add(new DefaultCollisionResponseBehavior());
+        midLayer.add(ceiling);
+        addEntity(ceiling);
+
+        GameObject platform = new GameObject("platform").setPosition(200, 300).setSize(200, 20).setFillColor(Color.GRAY)
+                .setEdgeColor(Color.BLACK).setMaterial(Material.WOOD).setMass(500f).setPhysicsType(PhysicsType.STATIC)
+                .add(new WorldContainedBehavior(world)).add(new DefaultCollisionResponseBehavior());
+        midLayer.add(platform);
+        addEntity(platform);
+
+        GameObject movingPlatform = new GameObject("movingPlatform").setPosition(400, 200).setSize(150, 20)
+                .setFillColor(Color.GRAY).setEdgeColor(Color.BLACK).setMaterial(Material.WOOD).setMass(500f)
+                .setPhysicsType(PhysicsType.KINEMATIC).add(new WorldContainedBehavior(world))
+                .setVelocity(100f, 0f)
+                .add(new DefaultCollisionResponseBehavior())
+                .add(new VelocityBehavior())
+                .add(new MovingPlatformBehavior(200, 400, 100f));
+        midLayer.add(movingPlatform);
+        addEntity(movingPlatform);
+        
+
         // add a player entity
         GameObject player = new GameObject("player")
                 .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2).setSize(24, 32)

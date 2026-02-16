@@ -28,8 +28,8 @@ public class DebugRenderPlugin implements RenderPlugin<Entity<?>> {
             g.setColor(Color.CYAN);
             // Affiche la direction de la vitesse
             g.drawLine((int) (entity.x + entity.width / 2), (int) (entity.y + entity.height / 2),
-                    (int) (entity.x + entity.width / 2 + entity.vx * 0.25f),
-                    (int) (entity.y + entity.height / 2 + entity.vy * 0.25f));
+                    (int) (entity.x + entity.width / 2 + entity.vx * 0.005f),
+                    (int) (entity.y + entity.height / 2 + entity.vy * 0.005f));
 
             // Affiche l'axe de rotation
             double angleRad = Math.toRadians(entity.getAngle());

@@ -14,8 +14,8 @@ import core.entity.Entity;
 public class VelocityBehavior implements Behavior<Entity<?>> {
     @Override
     public void update(Entity<?> entity, float deltaTime) {
-        entity.x += entity.vx * deltaTime;
-        entity.y += entity.vy * deltaTime;
+        entity.x += entity.vx * deltaTime / 10f;
+        entity.y += entity.vy * deltaTime / 10f;
         // Si l'entité possède une vitesse angulaire (va), on met à jour l'angle
         try {
             java.lang.reflect.Field vaField = entity.getClass().getField("va");

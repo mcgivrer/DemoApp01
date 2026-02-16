@@ -1,6 +1,7 @@
 package core.entity;
 
 import java.awt.Color;
+import java.awt.Polygon;
 import java.awt.image.BufferedImage;
 
 public class GameObject extends Entity<GameObject> {
@@ -9,11 +10,22 @@ public class GameObject extends Entity<GameObject> {
     private Color fillColor = Color.BLUE;
     private Color edgeColor = Color.WHITE;
 
-    private boolean solid = true;
+    private PhysicsType solid = PhysicsType.DYNAMIC;
     private boolean contact = false;
+
+    private Polygon polygon;
 
     public GameObject(String name) {
         super(name);
+    }
+
+    public GameObject setPolygon(Polygon polygon) {
+        this.polygon = polygon;
+        return this;
+    }
+
+    public Polygon getPolygon() {
+        return polygon;
     }
 
     public GameObject setSprite(BufferedImage image) {
@@ -33,7 +45,6 @@ public class GameObject extends Entity<GameObject> {
         return edgeColor;
     }
 
-
     public GameObject setFillColor(Color fillColor) {
         this.fillColor = fillColor;
         return this;
@@ -44,11 +55,11 @@ public class GameObject extends Entity<GameObject> {
         return this;
     }
 
-    public boolean isSolid() {
+    public PhysicsType getPhysicType() {
         return solid;
     }
 
-    public GameObject setSolid(boolean solid) {
+    public GameObject setPhysicType(PhysicsType solid) {
         this.solid = solid;
         return this;
     }
@@ -63,14 +74,11 @@ public class GameObject extends Entity<GameObject> {
     }
 
     public String[] getDebugInfo() {
-        return new String[] { 
-            "GameObject ID: " + this.getId(), 
-            "Name: " + this.getName(),
-            "Position: (" + this.getX() + ", " + this.getY() + ")",
-            "Size: (" + this.getWidth() + " x " + this.getHeight() + ")",
-            "Velocity: (" + this.getVx() + ", " + this.getVy() + ")",
-            "Solid: " + this.isSolid(),
-            "Contact: " + this.isContact()
-         };
+        return new String[] { "GameObject ID: " + this.getId(), "Name: " + this.getName(),
+                "Position: (" + this.getX() + ", " + this.getY() + ")",
+                "Size: (" + this.getWidth() + " x " + this.getHeight() + ")",
+                "Velocity: (" + this.getVx() + ", " + this.getVy() + ")", "physicsType: " + this.getPhysicType(),
+                "Contact: " + this.isContact() };
     }
+
 }

@@ -26,31 +26,36 @@ public class PlayerInputBehavior implements Behavior<GameObject> {
 
     @Override
     public void update(Entity<?> entity, float deltaTime) {
-        float speed = 200.0f;
+        float speed = entity.getAttribute("speed", 200.0f);
+        float jumpFactor = entity.getAttribute("jumpFactor", 4.0f);
+        float friction = 1.0f - entity.getMaterial().friction();
+
         // horizontal movement
         if (inputHandler.isKeyPressed(KeyEvent.VK_LEFT) || inputHandler.isKeyPressed(KeyEvent.VK_Q)) {
             entity.setVx(-speed);
         } else if (inputHandler.isKeyPressed(KeyEvent.VK_RIGHT) || inputHandler.isKeyPressed(KeyEvent.VK_S)) {
             entity.setVx(speed);
         } else {
-            entity.setVx(entity.getVx() * entity.getMaterial().friction());
+            entity.setVx(entity.getVx() * friction);
         }
+
         // vertical movement
         if (inputHandler.isKeyPressed(KeyEvent.VK_UP) || inputHandler.isKeyPressed(KeyEvent.VK_Z)) {
-            entity.setVy(-speed * 2.5f);
+            entity.setVy(-speed * jumpFactor);
         } else if (inputHandler.isKeyPressed(KeyEvent.VK_DOWN) || inputHandler.isKeyPressed(KeyEvent.VK_W)) {
             entity.setVy(speed);
         } else {
-            entity.setVy(entity.getVy() * entity.getMaterial().friction());
+            entity.setVy(entity.getVy() * friction);
         }
+
         // rotation
-        float angularSpeed = 90.0f; // degrés/seconde
+        float angularSpeed = entity.getAttribute("angularSpeed", 90.0f); // degrés/seconde
         if (inputHandler.isKeyPressed(KeyEvent.VK_A)) {
             entity.setVa(-angularSpeed);
         } else if (inputHandler.isKeyPressed(KeyEvent.VK_E)) {
             entity.setVa(angularSpeed);
         } else {
-            entity.setVa(entity.getVa() * entity.getMaterial().friction());
+            entity.setVa(entity.getVa() * friction);
         }
     }
 

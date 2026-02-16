@@ -12,6 +12,7 @@ import core.behavior.VelocityBehavior;
 import core.behavior.WorldContainedBehavior;
 import core.entity.Camera;
 import core.entity.GameObject;
+import core.entity.ShapeType;
 import core.entity.World;
 import core.graphics.Layer;
 import core.graphics.Renderer;
@@ -75,7 +76,9 @@ public class DemoScene extends Scene {
         GameObject player = new GameObject("player")
                 .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2).setSize(24, 32)
                 .setVelocity(0, 0).setFillColor(Color.GREEN).setEdgeColor(Color.GREEN.darker().darker())
-                .setMaterial(Material.WOOD).setDebugLevel(2).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
+                .setMaterial(Material.ICE).setDebugLevel(2).setPriority(10).setAttribute("speed", 2000f)
+                .setAttribute("angularSpeed", 5f).setAttribute("jumpFactor", 4.0f)
+                .add(new GravityBehavior(world.getGravity())).add(new VelocityBehavior())
                 .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()));
         addEntity(player);
 
@@ -85,6 +88,7 @@ public class DemoScene extends Scene {
                 .add(new CameraBehavior(window, 0.5f, 0.75f));
         addEntity(camera);
 
+        // dispatching entities across layers.
         midLayer.add(world);
         foregroundLayer.add(player);
         foregroundLayer.add(camera);
@@ -92,12 +96,16 @@ public class DemoScene extends Scene {
 
     private void generateBalls(World world, Layer midLayer, int nb) {
         for (int i = 0; i < nb; i++) {
+            int size = 8 + (int) (Math.random() * 4);
+            Color baseColor = new Color((float) Math.random(), (float) Math.random(), (float) Math.random());
             GameObject ball = new GameObject("ball_" + i)
-                    .setPosition((float) (Math.random() * (world.getWidth() - 16)),
-                            (float) (Math.random() * (world.getHeight() - 16)))
-                    .setSize(16, 16).setVelocity(0, 0).setFillColor(Color.RED).setEdgeColor(Color.RED.darker().darker())
-                    .setMaterial(Material.SUPERBALL).add(new GravityBehavior(9.81f)).add(new VelocityBehavior())
-                    .setDebugLevel(3).add(new WorldContainedBehavior(world));
+                    .setPosition((float) (Math.random() * (world.getWidth() - size)),
+                            (float) (Math.random() * (world.getHeight() - size)))
+                    .setSize(size, size).setShapeType(ShapeType.CIRCLE)
+                    .setVelocity(1500f - (3000F * (float) Math.random()), 1500f - (3000F * (float) Math.random()))
+                    .setFillColor(baseColor).setEdgeColor(baseColor.darker().darker().darker())
+                    .setMaterial(Material.SUPERBALL).add(new GravityBehavior(world.getGravity()))
+                    .add(new VelocityBehavior()).add(new WorldContainedBehavior(world)).setDebugLevel(3);
             midLayer.add(ball);
             addEntity(ball);
         }

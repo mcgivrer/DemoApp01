@@ -1,7 +1,9 @@
 package core.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import core.behavior.Behavior;
 import core.graphics.Layer;
@@ -18,6 +20,8 @@ public class Entity<T> {
 
     private int debugLevel = 1;
 
+    private int priority = -1;
+
     public float x, y;
     public int width, height;
     public float vx, vy;
@@ -26,28 +30,15 @@ public class Entity<T> {
     // Vitesse angulaire (en degrés/seconde)
     public float va = 0f;
 
-    public T setVa(float va) {
-        this.va = va;
-        return (T) this;
-    }
+    private Material material = Material.DEFAULT;
 
-    public float getVa() {
-        return va;
-    }
-
-    public T setAngle(float angle) {
-        this.angle = angle;
-        return (T) this;
-    }
-
-    public float getAngle() {
-        return angle;
-    }
+    private ShapeType shapeType = ShapeType.RECTANGLE;
 
     Layer layer = null;
 
     protected List<Behavior<?>> behaviors = new ArrayList<>();
-    private Material material = Material.DEFAULT;
+
+    protected Map<String, Object> attributes = new HashMap<>();
 
     public Entity(String name) {
         this.name = name;
@@ -56,6 +47,29 @@ public class Entity<T> {
     public T add(Behavior<?> behavior) {
         behaviors.add(behavior);
         return (T) this;
+    }
+
+    public T remove(Behavior<?> behavior) {
+        behaviors.remove(behavior);
+        return (T) this;
+    }
+
+    public T setShapeType(ShapeType shapeType) {
+        this.shapeType = shapeType;
+        return (T) this;
+    }
+
+    public ShapeType getShapeType() {
+        return shapeType;
+    }
+
+    public <Y> T setAttribute(String key, Y value) {
+        attributes.put(key, value);
+        return (T) this;
+    }
+
+    public <Y> Y getAttribute(String key, Y defaultValue) {
+        return (Y) attributes.getOrDefault(key, defaultValue);
     }
 
     public T setPosition(float x, float y) {
@@ -74,6 +88,15 @@ public class Entity<T> {
         this.vx = vx;
         this.vy = vy;
         return (T) this;
+    }
+
+    public T setPriority(int priority) {
+        this.priority = priority;
+        return (T) this;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 
     public long getId() {
@@ -165,6 +188,24 @@ public class Entity<T> {
     public T setMaterial(Material material) {
         this.material = material;
         return (T) this;
+    }
+
+    public T setVa(float va) {
+        this.va = va;
+        return (T) this;
+    }
+
+    public float getVa() {
+        return va;
+    }
+
+    public T setAngle(float angle) {
+        this.angle = angle;
+        return (T) this;
+    }
+
+    public float getAngle() {
+        return angle;
     }
 
     public Material getMaterial() {

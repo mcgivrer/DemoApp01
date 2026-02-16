@@ -32,18 +32,61 @@ public class GameObjectRenderPlugin implements RenderPlugin<GameObject> {
         double angleRad = Math.toRadians(entity.getAngle());
         g2.rotate(angleRad, x + width / 2.0, y + height / 2.0);
 
-        if (entity.getSprite() != null) {
-            g2.drawImage(entity.getSprite(), x, y, width, height, null);
-            g2.dispose();
-            return;
+        switch (entity.getShapeType()) {
+        case POINT -> {
+            if (entity.getEdgeColor() != null) {
+                g2.setColor(entity.getEdgeColor());
+                g2.setStroke(new BasicStroke(2f));
+                g2.drawLine(x, y, x, y);
+            }
         }
-
-        g2.setColor(entity.getFillColor());
-        g2.fillRect(x, y, width, height);
-
-        g2.setColor(entity.getEdgeColor());
-        g2.setStroke(new BasicStroke(0.5f));
-        g2.drawRect(x, y, width, height);
+        case LINE -> {
+            if (entity.getEdgeColor() != null) {
+                g2.setColor(entity.getEdgeColor());
+                g2.setStroke(new BasicStroke(1f));
+                g2.drawLine(x, y, x + width, y + height);
+            }
+        }
+        case CIRCLE -> {
+            if (entity.getFillColor() != null) {
+                g2.setColor(entity.getFillColor());
+                g2.fillOval(x, y, width, height);
+            }
+            if (entity.getEdgeColor() != null) {
+                g2.setColor(entity.getEdgeColor());
+                g2.setStroke(new BasicStroke(0.5f));
+                g2.drawOval(x, y, width, height);
+            }
+        }
+        case RECTANGLE -> {
+            if (entity.getFillColor() != null) {
+                g2.setColor(entity.getFillColor());
+                g2.fillRect(x, y, width, height);
+            }
+            if (entity.getEdgeColor() != null) {
+                g2.setColor(entity.getEdgeColor());
+                g2.setStroke(new BasicStroke(0.5f));
+                g2.drawRect(x, y, width, height);
+            }
+        }
+        case POLYGON -> {
+            if (entity.getFillColor() != null && entity.getPolygon() != null) {
+                g2.setColor(entity.getFillColor());
+                g2.fillPolygon(entity.getPolygon());
+            }
+            if (entity.getEdgeColor() != null && entity.getPolygon() != null) {
+                g2.setColor(entity.getEdgeColor());
+                g2.setStroke(new BasicStroke(0.5f));
+                g2.drawPolygon(entity.getPolygon());
+            }
+        }
+        case SPRITE -> {
+            if (entity.getSprite() != null) {
+                g2.drawImage(entity.getSprite(), x, y, width, height, null);
+            }
+        }
+        default -> throw new IllegalArgumentException("Unexpected value: " + entity.getShapeType());
+        }
         g2.dispose();
     }
 

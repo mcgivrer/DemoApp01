@@ -12,6 +12,7 @@ import core.entity.Entity;
  */
 public class GravityBehavior implements Behavior<Entity<?>> {
     public float gravity = 9.81f;
+    public float gravityScale = 2500.0f;
 
     public GravityBehavior(float gravity) {
         this.gravity = gravity;
@@ -19,7 +20,7 @@ public class GravityBehavior implements Behavior<Entity<?>> {
 
     @Override
     public void update(Entity<?> entity, float deltaTime) {
-        entity.vy += gravity * deltaTime * 1500f;
+        entity.vy += gravity * gravityScale * deltaTime;
     }
 
 }

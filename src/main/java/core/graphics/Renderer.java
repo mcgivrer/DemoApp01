@@ -145,7 +145,7 @@ public class Renderer extends Service {
                 scene.entities.stream().filter(e -> !(e instanceof Layer)).filter(Entity::isActive)
                         .filter(Entity::isVisible)
                         .sorted((e1, e2) -> Integer.compare(e1.getLayer().getZIndex(), e2.getLayer().getZIndex()))
-                        .forEach(entity -> {
+                        .sorted((e1, e2) -> Integer.compare(e1.getPriority(), e2.getPriority())).forEach(entity -> {
                             drawEntity(g, camera, entity); // Draw each entity
                         });
 
@@ -157,7 +157,7 @@ public class Renderer extends Service {
                     g.fillRect(0, window.getHeight() - 30, window.getWidth(), 30);
 
                     g.setColor(Color.ORANGE);
-                    g.drawString(String.format("{ dbg:%d | mode: %s | fps: %d | time: %f | count: %d }", App.debug,
+                    g.drawString(String.format("{ dbg:%d | mode: %s | fps: %d | time: %.2f | count: %d }", App.debug,
                             App.mode.name(), stats.get("fps"), stats.get("time"), stats.get("rendered.entities")), 20,
                             window.getHeight() - 14);
                 }

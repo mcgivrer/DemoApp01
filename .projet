@@ -1,0 +1,11 @@
+#JIDE Project Configuration
+#Thu Feb 12 13:11:01 CET 2026
+breakpoints.src/main/java/core/App.java=72
+build.system=native
+classes.output.dir=target/classes
+java.version=25
+libs.path=libs/junit-platform-console-standalone-6.0.0.jar
+main.class=core.App
+output.dir=target\\classes
+project.name=DemoApp01
+source.paths=src\\main\\java,src\\main\\resources,src\\test\\java,src\\test\\resources

@@ -46,7 +46,7 @@ public class Entity<T> {
     protected List<Behavior<?>> behaviors = new ArrayList<>();
 
     protected Map<String, Object> attributes = new HashMap<>();
-    
+
     /** The bounding shape for collision detection (OBB or Ellipse). */
     private BoundingShape boundingShape;
 
@@ -57,6 +57,10 @@ public class Entity<T> {
     public T add(Behavior<?> behavior) {
         behaviors.add(behavior);
         return (T) this;
+    }
+
+    public <Y extends Behavior<?>> Y getBehavior(Class<Y> behaviorClass) {
+        return (Y) behaviors.stream().filter(behaviorClass::isInstance).findFirst().orElse(null);
     }
 
     public T remove(Behavior<?> behavior) {
@@ -121,8 +125,8 @@ public class Entity<T> {
     }
 
     /**
-     * Returns the X coordinate of the geometric center in world space.
-     * This is always the center of the bounding box (x + width/2).
+     * Returns the X coordinate of the geometric center in world space. This is
+     * always the center of the bounding box (x + width/2).
      *
      * @return The X coordinate of the geometric center.
      */
@@ -131,8 +135,8 @@ public class Entity<T> {
     }
 
     /**
-     * Returns the Y coordinate of the geometric center in world space.
-     * This is always the center of the bounding box (y + height/2).
+     * Returns the Y coordinate of the geometric center in world space. This is
+     * always the center of the bounding box (y + height/2).
      *
      * @return The Y coordinate of the geometric center.
      */
@@ -141,13 +145,12 @@ public class Entity<T> {
     }
 
     /**
-     * Returns the X coordinate of the gravity center in world space.
-     * Defaults to geometric center unless overridden via
-     * {@link #setGravityCenterX(float)}.
+     * Returns the X coordinate of the gravity center in world space. Defaults to
+     * geometric center unless overridden via {@link #setGravityCenterX(float)}.
      * <p>
-     * <strong>Note:</strong> For collision detection, use {@link #getGeometricCenterX()}
-     * instead. The gravity center affects rotational physics (inertia, angular impulse)
-     * but not collision detection geometry.
+     * <strong>Note:</strong> For collision detection, use
+     * {@link #getGeometricCenterX()} instead. The gravity center affects rotational
+     * physics (inertia, angular impulse) but not collision detection geometry.
      *
      * @return The X coordinate of the gravity center.
      */
@@ -156,13 +159,12 @@ public class Entity<T> {
     }
 
     /**
-     * Returns the Y coordinate of the gravity center in world space.
-     * Defaults to geometric center unless overridden via
-     * {@link #setGravityCenterY(float)}.
+     * Returns the Y coordinate of the gravity center in world space. Defaults to
+     * geometric center unless overridden via {@link #setGravityCenterY(float)}.
      * <p>
-     * <strong>Note:</strong> For collision detection, use {@link #getGeometricCenterY()}
-     * instead. The gravity center affects rotational physics (inertia, angular impulse)
-     * but not collision detection geometry.
+     * <strong>Note:</strong> For collision detection, use
+     * {@link #getGeometricCenterY()} instead. The gravity center affects rotational
+     * physics (inertia, angular impulse) but not collision detection geometry.
      *
      * @return The Y coordinate of the gravity center.
      */
@@ -278,6 +280,7 @@ public class Entity<T> {
 
     /**
      * Sets the gravity center X offset relative to the entity's top-left corner.
+     * 
      * @param gcx X offset in pixels.
      * @return this entity.
      */
@@ -288,6 +291,7 @@ public class Entity<T> {
 
     /**
      * Sets the gravity center Y offset relative to the entity's top-left corner.
+     * 
      * @param gcy Y offset in pixels.
      * @return this entity.
      */
@@ -298,6 +302,7 @@ public class Entity<T> {
 
     /**
      * Sets both gravity center offsets at once.
+     * 
      * @param gcx X offset relative to top-left.
      * @param gcy Y offset relative to top-left.
      * @return this entity.
@@ -330,9 +335,9 @@ public class Entity<T> {
     /**
      * Returns the bounding shape of this entity for collision detection.
      * <p>
-     * For RECTANGLE and LINE shapes, returns an Oriented Bounding Box (OBB)
-     * with 4 corners computed from position, size, and rotation angle.
-     * For CIRCLE shapes, returns an Ellipse with the entity's dimensions.
+     * For RECTANGLE and LINE shapes, returns an Oriented Bounding Box (OBB) with 4
+     * corners computed from position, size, and rotation angle. For CIRCLE shapes,
+     * returns an Ellipse with the entity's dimensions.
      * <p>
      * The bounding shape is lazily created and updated on each call.
      *
@@ -351,11 +356,7 @@ public class Entity<T> {
         // Update based on shape type
         if (shapeType == ShapeType.CIRCLE) {
             // Ellipse centered on the entity with radii = half dimensions
-            boundingShape.updateEllipse(
-                x + width / 2.0f,
-                y + height / 2.0f,
-                width / 2.0f,
-                height / 2.0f);
+            boundingShape.updateEllipse(x + width / 2.0f, y + height / 2.0f, width / 2.0f, height / 2.0f);
         } else {
             // OBB for RECTANGLE, LINE, and other shapes
             boundingShape.updateOBB(x, y, width, height, angle);

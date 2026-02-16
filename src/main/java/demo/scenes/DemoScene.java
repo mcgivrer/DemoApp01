@@ -11,8 +11,12 @@ import core.behavior.GravityBehavior;
 import core.behavior.PlayerInputBehavior;
 import core.behavior.VelocityBehavior;
 import core.behavior.WorldContainedBehavior;
+import core.behavior.particle.ExplosionEmitterBehavior;
+import core.behavior.particle.FountainEmitterBehavior;
+import core.behavior.particle.ParticlePhysicsBehavior;
 import core.entity.Camera;
 import core.entity.GameObject;
+import core.entity.ParticleSystem;
 import core.entity.PhysicsType;
 import core.entity.ShapeType;
 import core.entity.World;
@@ -62,6 +66,8 @@ public class DemoScene extends Scene {
      */
     @Override
     public void create(App app) {
+        Renderer renderer = Service.get(Renderer.class);
+        renderer.registerPlugin(new core.graphics.ParticleRenderPlugin());
         JFrame window = Service.get(Renderer.class).getWindow();
         // add a world entity
 
@@ -120,23 +126,34 @@ public class DemoScene extends Scene {
 
         // add a player entity
         GameObject player = new GameObject("player")
-                .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2)
-                .setSize(24, 32)
-                .setVelocity(0, 0)
-                .setGravityCenter(12,28)
-                .setMaterial(Material.WOOD)
-                .setMass(70.0f).setDebugLevel(2)
-                .setFillColor(Color.GREEN)
-                .setEdgeColor(Color.GREEN.darker().darker())
-                .setPriority(10).setAttribute("speed", 2000f)
-                .setAttribute("angularSpeed", 5f)
-                .setAttribute("jumpFactor", 4.0f)
+                .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2).setSize(24, 32)
+                .setVelocity(0, 0).setGravityCenter(12, 28).setMaterial(Material.WOOD).setMass(70.0f).setDebugLevel(2)
+                .setFillColor(Color.GREEN).setEdgeColor(Color.GREEN.darker().darker()).setPriority(10)
+                .setAttribute("speed", 2000f).setAttribute("angularSpeed", 5f).setAttribute("jumpFactor", 4.0f)
                 .add(new GravityBehavior(world.getGravity())).add(new VelocityBehavior())
                 .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()))
                 .add(new DefaultCollisionResponseBehavior());
         addEntity(player);
 
         generateBalls(world, foregroundLayer, 200, 50, 50);
+
+        // Fontaine
+        ParticleSystem fountain = new ParticleSystem("fountain", 200);
+        fountain.setPosition(400, 500);
+        fountain.add(new FountainEmitterBehavior().setEmissionRate(60));
+        fountain.add(new ParticlePhysicsBehavior());
+        fountain.setLayer(midLayer);
+        addEntity(fountain);
+
+        // Explosion
+        ParticleSystem explosion = new ParticleSystem("explosion", 100);
+        explosion.setPosition(200, 200);
+        explosion.add(
+            new ExplosionEmitterBehavior()
+                .presetFireExplosion());
+        explosion.add(new ParticlePhysicsBehavior());
+        explosion.setLayer(midLayer);
+        addEntity(explosion);
 
         Camera camera = new Camera("cam01").setSize(600, 400).setTarget(player).setTweenFactor(5.0f).setActive(true)
                 .add(new CameraBehavior(window, 0.5f, 0.75f));

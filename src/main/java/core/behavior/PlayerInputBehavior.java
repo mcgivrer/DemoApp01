@@ -2,8 +2,11 @@ package core.behavior;
 
 import java.awt.event.KeyEvent;
 
+import core.behavior.particle.ExplosionEmitterBehavior;
 import core.entity.Entity;
 import core.entity.GameObject;
+import core.entity.ParticleSystem;
+import core.scene.Scene;
 import core.utils.InputHandler;
 
 /**
@@ -43,7 +46,8 @@ public class PlayerInputBehavior implements Behavior<GameObject> {
         // vertical movement (jump/down input only)
         // Do NOT apply friction to vy - gravity handles vertical physics
         if (inputHandler.isKeyPressed(KeyEvent.VK_UP) || inputHandler.isKeyPressed(KeyEvent.VK_Z)) {
-            // Apply jump impulse (contact check would require collision detection before input)
+            // Apply jump impulse (contact check would require collision detection before
+            // input)
             entity.setVy(-speed * jumpFactor);
         } else if (inputHandler.isKeyPressed(KeyEvent.VK_DOWN) || inputHandler.isKeyPressed(KeyEvent.VK_W)) {
             entity.setVy(speed);
@@ -58,6 +62,26 @@ public class PlayerInputBehavior implements Behavior<GameObject> {
             entity.setVa(angularSpeed);
         } else {
             entity.setVa(entity.getVa() * friction);
+        }
+
+        if (inputHandler.isKeyPressed(KeyEvent.VK_SPACE)) {
+            // Space bar can be used for a special action, e.g., dash or shoot
+            // Implement as needed, e.g., set a "dashing" state or trigger an attack
+            ParticleSystem explosion = Scene.currentScene.getEntityByName("explosion");
+            if (explosion != null) {
+                explosion.setPosition(entity.getX(), entity.getY());
+                ExplosionEmitterBehavior emitter = explosion.getBehavior(ExplosionEmitterBehavior.class);
+                if (emitter != null) {
+                    emitter.presetFireExplosion();
+                    emitter.reset();
+                    emitter.setSmokeDelay(0.1f)
+                    .setSmokeDuration(20f)
+                    .setSmokeParticleCount(250)
+                    .setSmokeSizeRange(8,
+                            24, 4);
+                    emitter.explode();
+                }
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import java.util.Properties;
 import core.App;
 import core.entity.Camera;
 import core.entity.Entity;
+import core.entity.ParticleSystem;
 import core.utils.Configuration;
 
 /**
@@ -137,6 +138,11 @@ public class Scene extends Entity<Scene> {
         entities.stream().filter(Camera.class::isInstance).map(Camera.class::cast).forEach(c -> c.setActive(false));
         entities.stream().filter(Camera.class::isInstance).map(Camera.class::cast)
                 .filter(c -> c.getName().equals(cameraName)).findFirst().ifPresent(c -> c.setActive(true));
+    }
+
+    public ParticleSystem getEntityByName(String string) {
+        return entities.stream().filter(e -> e.getName().equals(string)).filter(ParticleSystem.class::isInstance)
+                .map(ParticleSystem.class::cast).findFirst().orElse(null);
     }
 
 }

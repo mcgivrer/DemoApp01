@@ -18,6 +18,13 @@ public class GameObject extends Entity<GameObject> {
 
     PhysicsType physicsType = PhysicsType.DYNAMIC;
 
+    /**
+     * Velocity inherited from a KINEMATIC platform this object is standing on.
+     * Reset each frame before collision detection.
+     */
+    private float platformVx = 0;
+    private float platformVy = 0;
+
     public GameObject(String name) {
         super(name);
     }
@@ -96,6 +103,45 @@ public class GameObject extends Entity<GameObject> {
      */
     public GameObject setBoundingBox(Rectangle2D box) {
         this.boundingBox = box;
+        return this;
+    }
+
+    /**
+     * Gets the platform velocity X component (inherited from KINEMATIC platform).
+     * @return The platform velocity X in px/s.
+     */
+    public float getPlatformVx() {
+        return platformVx;
+    }
+
+    /**
+     * Gets the platform velocity Y component (inherited from KINEMATIC platform).
+     * @return The platform velocity Y in px/s.
+     */
+    public float getPlatformVy() {
+        return platformVy;
+    }
+
+    /**
+     * Sets the platform velocity (inherited from KINEMATIC platform).
+     * @param pvx Platform velocity X.
+     * @param pvy Platform velocity Y.
+     * @return this GameObject instance.
+     */
+    public GameObject setPlatformVelocity(float pvx, float pvy) {
+        this.platformVx = pvx;
+        this.platformVy = pvy;
+        return this;
+    }
+
+    /**
+     * Resets the platform velocity to zero.
+     * Should be called at the start of each collision detection pass.
+     * @return this GameObject instance.
+     */
+    public GameObject resetPlatformVelocity() {
+        this.platformVx = 0;
+        this.platformVy = 0;
         return this;
     }
 

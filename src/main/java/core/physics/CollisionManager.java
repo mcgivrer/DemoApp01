@@ -85,9 +85,14 @@ public class CollisionManager extends Service {
                 Entity<?> b = entities.get(j);
                 if (!b.isActive() || !(b instanceof GameObject goB)) continue;
 
-                // At least one entity must be DYNAMIC for a collision response
+                // Determine physics types
                 boolean aDynamic = goA.getPhysicsType() == PhysicsType.DYNAMIC;
                 boolean bDynamic = goB.getPhysicsType() == PhysicsType.DYNAMIC;
+                boolean aKinematic = goA.getPhysicsType() == PhysicsType.KINEMATIC;
+                boolean bKinematic = goB.getPhysicsType() == PhysicsType.KINEMATIC;
+
+                // At least one entity must be DYNAMIC for a collision response
+                // Also allow DYNAMIC ↔ KINEMATIC interactions
                 if (!aDynamic && !bDynamic) continue;
 
                 // Skip pairs involving NONE physics type
@@ -129,12 +134,12 @@ public class CollisionManager extends Service {
 
                 // --- Delegate response to CollisionBehavior instances ---
                 // Event for entity A: normal points away from B toward A
-                CollisionEvent eventA = new CollisionEvent(goB, nx, ny, penetration, aDynamic, bDynamic);
-                dispatchCollision(goA, eventA);
+                CollisionEvent eventA = new CollisionEvent(goB, nx, ny, penetration, aDynamic, bDynamic, bKinematic);
+                dispatchCollision(goA, eventA, deltaTime);
 
                 // Event for entity B: inverted normal (points away from A toward B)
-                CollisionEvent eventB = new CollisionEvent(goA, -nx, -ny, penetration, bDynamic, aDynamic);
-                dispatchCollision(goB, eventB);
+                CollisionEvent eventB = new CollisionEvent(goA, -nx, -ny, penetration, bDynamic, aDynamic, aKinematic);
+                dispatchCollision(goB, eventB, deltaTime);
             }
         }
         stats.put("collisions", collisionCount);
@@ -144,14 +149,15 @@ public class CollisionManager extends Service {
      * Filters the behaviors of {@code entity} to find {@link CollisionBehavior}
      * instances and invokes {@link CollisionBehavior#onCollision} on each of them.
      *
-     * @param entity The entity whose collision behaviors should be triggered.
-     * @param event  The collision event describing the collision context.
+     * @param entity    The entity whose collision behaviors should be triggered.
+     * @param event     The collision event describing the collision context.
+     * @param deltaTime The elapsed time since the last frame (in seconds).
      */
-    private void dispatchCollision(GameObject entity, CollisionEvent event) {
+    private void dispatchCollision(GameObject entity, CollisionEvent event, float deltaTime) {
         entity.getBehaviors().stream()
                 .filter(CollisionBehavior.class::isInstance)
                 .map(CollisionBehavior.class::cast)
-                .forEach(cb -> cb.onCollision(entity, event));
+                .forEach(cb -> cb.onCollision(entity, event, deltaTime));
     }
 
     /**

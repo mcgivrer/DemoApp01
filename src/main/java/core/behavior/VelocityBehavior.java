@@ -19,17 +19,14 @@ public class VelocityBehavior implements Behavior<Entity<?>> {
     @Override
     public void update(Entity<?> entity, float deltaTime) {
 
-        // Only apply to DYNAMIC GameObjects
-        if ((entity instanceof GameObject go) && (go.getPhysicsType().equals(PhysicsType.DYNAMIC))) {
-            entity.setPosition(entity.x + entity.vx * deltaTime * timeFactor,
-                    entity.y + entity.vy * deltaTime * timeFactor);
-            // Si l'entité possède une vitesse angulaire (va), on met à jour l'angle
-            try {
-                java.lang.reflect.Field vaField = entity.getClass().getField("va");
-                float va = vaField.getFloat(entity);
-                entity.setAngle(entity.getAngle() + va * deltaTime * timeFactor);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                // Pas de champ va, on ignore
+        // Only apply to DYNAMIC and KINEMATIC GameObjects
+        if (entity instanceof GameObject go) {
+            PhysicsType pt = go.getPhysicsType();
+            if (pt == PhysicsType.DYNAMIC || pt == PhysicsType.KINEMATIC) {
+                entity.setPosition(entity.x + entity.vx * deltaTime * timeFactor,
+                        entity.y + entity.vy * deltaTime * timeFactor);
+                // Si l'entité possède une vitesse angulaire (va), on met à jour l'angle
+                entity.setAngle(entity.getAngle() + entity.getVa() * deltaTime * timeFactor);
             }
         }
     }

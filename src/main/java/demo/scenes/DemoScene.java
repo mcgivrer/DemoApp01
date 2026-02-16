@@ -111,14 +111,12 @@ public class DemoScene extends Scene {
 
         GameObject movingPlatform = new GameObject("movingPlatform").setPosition(400, 200).setSize(150, 20)
                 .setFillColor(Color.GRAY).setEdgeColor(Color.BLACK).setMaterial(Material.WOOD).setMass(500f)
-                .setPhysicsType(PhysicsType.KINEMATIC).add(new WorldContainedBehavior(world))
-                .setVelocity(100f, 0f)
-                .add(new DefaultCollisionResponseBehavior())
-                .add(new VelocityBehavior())
-                .add(new MovingPlatformBehavior(200, 400, 100f));
+                .setPhysicsType(PhysicsType.KINEMATIC).add(new WorldContainedBehavior(world)).setVelocity(100f, 0f)
+                .add(new MovingPlatformBehavior(200, 550, 200f)) // Controls velocity
+                .add(new VelocityBehavior()) // Applies movement
+                .add(new DefaultCollisionResponseBehavior());
         midLayer.add(movingPlatform);
         addEntity(movingPlatform);
-        
 
         // add a player entity
         GameObject player = new GameObject("player")
@@ -131,7 +129,7 @@ public class DemoScene extends Scene {
                 .add(new DefaultCollisionResponseBehavior());
         addEntity(player);
 
-        generateBalls(world, foregroundLayer, 200);
+        generateBalls(world, foregroundLayer, 200, 50, 50);
 
         Camera camera = new Camera("cam01").setSize(600, 400).setTarget(player).setTweenFactor(5.0f).setActive(true)
                 .add(new CameraBehavior(window, 0.5f, 0.75f));
@@ -143,13 +141,13 @@ public class DemoScene extends Scene {
         foregroundLayer.add(camera);
     }
 
-    private void generateBalls(World world, Layer midLayer, int nb) {
+    private void generateBalls(World world, Layer midLayer, int nb, int xOffset, int yOffset) {
         for (int i = 0; i < nb; i++) {
             int size = 8 + (int) (Math.random() * 4);
             Color baseColor = new Color((float) Math.random(), (float) Math.random(), (float) Math.random());
             GameObject ball = new GameObject("ball_" + i)
-                    .setPosition((float) (Math.random() * (world.getWidth() - size)),
-                            (float) ((Math.random() * 100) + 50))
+                    .setPosition((float) (xOffset + Math.random() * (world.getWidth() - size - xOffset)),
+                            (float) (yOffset + Math.random() * (world.getHeight() - size - yOffset)))
                     .setSize(size, size).setShapeType(ShapeType.CIRCLE)
                     .setVelocity(1500f - (3000F * (float) Math.random()), 1500f - (3000F * (float) Math.random()))
                     .setFillColor(baseColor).setEdgeColor(baseColor.darker().darker().darker())

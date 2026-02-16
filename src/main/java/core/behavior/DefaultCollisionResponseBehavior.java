@@ -53,17 +53,36 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
     private static final float ROTATION_VELOCITY_THRESHOLD = 3000.0f;
 
     @Override
-    public void onCollision(GameObject self, CollisionEvent event) {
+    public void onCollision(GameObject self, CollisionEvent event, float deltaTime) {
         GameObject other = event.other();
         float nx = event.nx();
         float ny = event.ny();
         float penetration = event.penetration();
         boolean selfDynamic = event.selfDynamic();
         boolean otherDynamic = event.otherDynamic();
+        boolean otherKinematic = event.otherKinematic();
 
         if (!selfDynamic) {
             return;
         }
+
+        // --- KINEMATIC platform support ---
+        // When a DYNAMIC object is on top of a KINEMATIC object (collision from below,
+        // normal pointing upward: ny < 0), transfer the KINEMATIC's movement to the DYNAMIC.
+        // Only transfer position, NOT velocity - the object keeps its own velocity.
+        if (otherKinematic && ny < -0.5f) {
+            // Apply platform displacement directly (position delta based on platform velocity)
+            // Use the same time factor as VelocityBehavior (0.1f)
+            float timeFactor = 0.1f;
+            self.setPosition(
+                    self.x + other.vx * deltaTime * timeFactor,
+                    self.y + other.vy * deltaTime * timeFactor);
+        }
+        
+        // For KINEMATIC objects, treat their velocity as zero for collision impulse calculations
+        // This prevents the platform velocity from affecting the bounce/friction response
+        float otherVxForImpulse = otherKinematic ? 0 : other.vx;
+        float otherVyForImpulse = otherKinematic ? 0 : other.vy;
 
         // --- Inverse masses ---
         float selfMass = self.getMass();
@@ -81,8 +100,9 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
         float inertiaOther = computeInertia(other, otherMass);
 
         // Relative linear speed (pre-check for rotation eligibility)
-        float relSpeedSq = (self.vx - other.vx) * (self.vx - other.vx)
-                + (self.vy - other.vy) * (self.vy - other.vy);
+        // Use adjusted velocity for KINEMATIC
+        float relSpeedSq = (self.vx - otherVxForImpulse) * (self.vx - otherVxForImpulse)
+                + (self.vy - otherVyForImpulse) * (self.vy - otherVyForImpulse);
 
         // Only CIRCLE shapes rotate freely; RECTANGLE/LINE/others require
         // an extreme collision speed to receive any angular impulse.
@@ -109,14 +129,16 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
 
         // --- Angular velocities (convert degrees/s → radians/s) ---
         float omegaSelf = (float) Math.toRadians(self.getVa());
-        float omegaOther = (float) Math.toRadians(other.getVa());
+        // For KINEMATIC, treat angular velocity as 0 for impulse calculations
+        float omegaOther = otherKinematic ? 0 : (float) Math.toRadians(other.getVa());
 
         // --- Velocity at contact point = v_linear + ω × r ---
         // In 2D: ω × r = (−ω·ry , ω·rx)
         float vSelfX = self.vx - omegaSelf * rSelfY;
         float vSelfY = self.vy + omegaSelf * rSelfX;
-        float vOtherX = other.vx - omegaOther * rOtherY;
-        float vOtherY = other.vy + omegaOther * rOtherX;
+        // Use adjusted velocity for KINEMATIC objects (treat as 0)
+        float vOtherX = otherVxForImpulse - omegaOther * rOtherY;
+        float vOtherY = otherVyForImpulse + omegaOther * rOtherX;
 
         // --- Positional correction (mass-weighted, before velocity changes) ---
         float correctionRatio = invMassSelf / invMassSum;

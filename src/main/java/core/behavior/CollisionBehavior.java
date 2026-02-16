@@ -28,10 +28,11 @@ public interface CollisionBehavior extends Behavior<GameObject> {
      * Called by the {@link core.physics.CollisionManager} when {@code self}
      * collides with another entity.
      *
-     * @param self  The entity that owns this behavior.
-     * @param event Collision data (other entity, normal, penetration, physics types).
+     * @param self      The entity that owns this behavior.
+     * @param event     Collision data (other entity, normal, penetration, physics types).
+     * @param deltaTime The elapsed time since the last frame (in seconds).
      */
-    void onCollision(GameObject self, CollisionEvent event);
+    void onCollision(GameObject self, CollisionEvent event, float deltaTime);
 
     /**
      * No-op — collision behaviors are triggered via {@link #onCollision},

@@ -1,26 +1,30 @@
 package core.behavior;
 
 import core.entity.GameObject;
+import core.entity.ShapeType;
 import core.physics.CollisionEvent;
 
 /**
  * Default collision response that applies positional correction, impulse-based
- * velocity adjustment, and friction to the <em>self</em> entity only.
+ * velocity adjustment (linear <em>and angular</em>), and Coulomb friction to
+ * the <em>self</em> entity only.
  * <p>
- * <strong>Mass-aware distribution:</strong> when both entities are DYNAMIC,
- * positional correction and impulse are distributed according to the inverse
- * mass ratio so that lighter entities are pushed more than heavier ones.
- * The standard physics impulse formula is used:
+ * <strong>Mass &amp; inertia-aware distribution:</strong> when both entities are
+ * DYNAMIC, positional correction and impulse are distributed according to the
+ * inverse mass ratio. The rotational contribution uses the moment of inertia
+ * (rectangle: $I = m(w^2+h^2)/12$, circle: $I = mr^2/2$). The full impulse
+ * denominator is:
  * <pre>
- *   j = -(1 + e) &middot; v_rel &middot; n&#x0302; / (1/m_self + 1/m_other)
+ *   1/m_self + 1/m_other + (r_self &times; n)&sup2; / I_self + (r_other &times; n)&sup2; / I_other
  * </pre>
- * Each entity then receives &Delta;v = j / m.
  * <p>
- * When only {@code self} is DYNAMIC it receives the full correction (the
- * other entity acts as an infinite-mass wall).
- * <p>
- * Material properties ({@link core.physics.Material#restitution()} and
- * {@link core.physics.Material#friction()}) drive the response intensity.
+ * <strong>Safety guards:</strong>
+ * <ul>
+ *   <li>Linear velocity clamped to &plusmn;{@value #MAX_LINEAR_VELOCITY}</li>
+ *   <li>Angular velocity clamped to &plusmn;{@value #MAX_ANGULAR_VELOCITY}&deg;/s</li>
+ *   <li>Near-zero linear velocity (&lt; {@value #MIN_LINEAR_VELOCITY}) zeroed</li>
+ *   <li>Near-zero angular velocity (&lt; {@value #MIN_ANGULAR_VELOCITY}&deg;/s) zeroed</li>
+ * </ul>
  *
  * @see CollisionBehavior
  * @see CollisionEvent
@@ -28,9 +32,25 @@ import core.physics.CollisionEvent;
  *
  * @author Frédéric Delorme
  * @since 2026
- * @version 0.0.2
+ * @version 0.0.3
  */
 public class DefaultCollisionResponseBehavior implements CollisionBehavior {
+
+    /** Maximum linear velocity magnitude (px/s). */
+    private static final float MAX_LINEAR_VELOCITY = 5000.0f;
+    /** Maximum angular velocity magnitude (degrees/s). */
+    private static final float MAX_ANGULAR_VELOCITY = 720.0f;
+    /** Linear velocity below this threshold is zeroed to avoid jitter. */
+    private static final float MIN_LINEAR_VELOCITY = 0.05f;
+    /** Angular velocity below this threshold is zeroed to avoid jitter (degrees/s). */
+    private static final float MIN_ANGULAR_VELOCITY = 0.1f;
+
+    /**
+     * Minimum relative velocity magnitude (px/s) required to rotate a
+     * non-CIRCLE shape (RECTANGLE, LINE, etc.). Below this threshold
+     * the angular impulse is suppressed entirely for those shapes.
+     */
+    private static final float ROTATION_VELOCITY_THRESHOLD = 3000.0f;
 
     @Override
     public void onCollision(GameObject self, CollisionEvent event) {
@@ -42,7 +62,6 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
         boolean otherDynamic = event.otherDynamic();
 
         if (!selfDynamic) {
-            // Nothing to do — this entity is STATIC
             return;
         }
 
@@ -53,45 +72,203 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
         float invMassOther = (otherDynamic && otherMass > 0) ? 1.0f / otherMass : 0.0f;
         float invMassSum = invMassSelf + invMassOther;
 
-        // Safety: avoid division by zero (shouldn't happen if self is DYNAMIC)
         if (invMassSum <= 0) {
             return;
         }
 
-        // --- Positional correction (mass-weighted) ---
-        // self's share = invMassSelf / invMassSum  (lighter → larger share)
+        // --- Moments of inertia ---
+        float inertiaSelf = computeInertia(self, selfMass);
+        float inertiaOther = computeInertia(other, otherMass);
+
+        // Relative linear speed (pre-check for rotation eligibility)
+        float relSpeedSq = (self.vx - other.vx) * (self.vx - other.vx)
+                + (self.vy - other.vy) * (self.vy - other.vy);
+
+        // Only CIRCLE shapes rotate freely; RECTANGLE/LINE/others require
+        // an extreme collision speed to receive any angular impulse.
+        float invInertiaSelf = computeEffectiveInvInertia(
+                self.getShapeType(), selfDynamic, inertiaSelf, relSpeedSq);
+        float invInertiaOther = computeEffectiveInvInertia(
+                other.getShapeType(), otherDynamic, inertiaOther, relSpeedSq);
+
+        // --- Contact point lever arms ---
+        // The lever arm goes from the gravity center to the contact edge.
+        // Contact edge approximation: gravity center offset + half-size toward
+        // the collision normal direction.
+        // For self: contact is in the −n direction from its gravity center
+        float selfGcX = self.getGravityCenterX();  // relative to top-left
+        float selfGcY = self.getGravityCenterY();
+        float otherGcX = other.getGravityCenterX();
+        float otherGcY = other.getGravityCenterY();
+
+        // Vector from gravity center to contact point (edge facing other)
+        float rSelfX = -nx * (self.getWidth() / 2.0f) + (self.getWidth() / 2.0f - selfGcX);
+        float rSelfY = -ny * (self.getHeight() / 2.0f) + (self.getHeight() / 2.0f - selfGcY);
+        float rOtherX = nx * (other.getWidth() / 2.0f) + (other.getWidth() / 2.0f - otherGcX);
+        float rOtherY = ny * (other.getHeight() / 2.0f) + (other.getHeight() / 2.0f - otherGcY);
+
+        // --- Angular velocities (convert degrees/s → radians/s) ---
+        float omegaSelf = (float) Math.toRadians(self.getVa());
+        float omegaOther = (float) Math.toRadians(other.getVa());
+
+        // --- Velocity at contact point = v_linear + ω × r ---
+        // In 2D: ω × r = (−ω·ry , ω·rx)
+        float vSelfX = self.vx - omegaSelf * rSelfY;
+        float vSelfY = self.vy + omegaSelf * rSelfX;
+        float vOtherX = other.vx - omegaOther * rOtherY;
+        float vOtherY = other.vy + omegaOther * rOtherX;
+
+        // --- Positional correction (mass-weighted, before velocity changes) ---
         float correctionRatio = invMassSelf / invMassSum;
         self.setPosition(
                 self.x + nx * penetration * correctionRatio,
                 self.y + ny * penetration * correctionRatio);
 
-        // --- Velocity response using Material properties ---
+        // --- Material properties ---
         float restitution = Math.min(
                 self.getMaterial().restitution(),
                 other.getMaterial().restitution());
         float friction = (self.getMaterial().friction() + other.getMaterial().friction()) / 2.0f;
 
-        // Relative velocity projected onto the collision normal
-        // relVn < 0 means self is moving toward other (approaching) → must resolve
-        // relVn >= 0 means self is moving away from other (separating) → skip
-        float relVn = (self.vx - other.vx) * nx + (self.vy - other.vy) * ny;
+        // --- Relative velocity at contact point along the normal ---
+        float relVx = vSelfX - vOtherX;
+        float relVy = vSelfY - vOtherY;
+        float relVn = relVx * nx + relVy * ny;
 
+        // Only resolve if approaching (relVn < 0)
         if (relVn >= 0) {
+            clampVelocities(self);
             return;
         }
 
-        // Impulse magnitude:  j = -(1+e) * relVn / (1/m_self + 1/m_other)
-        float j = -(1 + restitution) * relVn / invMassSum;
+        // --- Cross products  r × n  (scalar in 2D) ---
+        float rCrossNSelf = rSelfX * ny - rSelfY * nx;
+        float rCrossNOther = rOtherX * ny - rOtherY * nx;
 
-        // Apply impulse to self:  Δv = j / m_self  =  j * invMassSelf
-        self.vx += j * invMassSelf * nx;
-        self.vy += j * invMassSelf * ny;
+        // --- Normal impulse denominator (includes rotational inertia) ---
+        float denomN = invMassSelf + invMassOther
+                + rCrossNSelf * rCrossNSelf * invInertiaSelf
+                + rCrossNOther * rCrossNOther * invInertiaOther;
 
-        // --- Friction on tangential velocity ---
+        float jn = -(1 + restitution) * relVn / denomN;
+
+        // Apply normal impulse — linear
+        self.vx += jn * invMassSelf * nx;
+        self.vy += jn * invMassSelf * ny;
+
+        // Apply normal impulse — angular:  Δω = (r × j·n) / I
+        float deltaOmegaN = jn * rCrossNSelf * invInertiaSelf;
+        self.setVa(self.getVa() + (float) Math.toDegrees(deltaOmegaN));
+
+        // --- Tangential (friction) impulse ---
         float tx = -ny;
         float ty = nx;
-        float tangentVel = self.vx * tx + self.vy * ty;
-        self.vx -= friction * tangentVel * tx;
-        self.vy -= friction * tangentVel * ty;
+        float relVt = relVx * tx + relVy * ty;
+
+        float rCrossTSelf = rSelfX * ty - rSelfY * tx;
+        float rCrossTOther = rOtherX * ty - rOtherY * tx;
+
+        float denomT = invMassSelf + invMassOther
+                + rCrossTSelf * rCrossTSelf * invInertiaSelf
+                + rCrossTOther * rCrossTOther * invInertiaOther;
+
+        float jt = -relVt / denomT;
+
+        // Coulomb friction clamp: |jt| ≤ μ · |jn|
+        float maxFriction = friction * Math.abs(jn);
+        jt = Math.max(-maxFriction, Math.min(maxFriction, jt));
+
+        // Apply friction impulse — linear
+        self.vx += jt * invMassSelf * tx;
+        self.vy += jt * invMassSelf * ty;
+
+        // Apply friction impulse — angular
+        float deltaOmegaT = jt * rCrossTSelf * invInertiaSelf;
+        self.setVa(self.getVa() + (float) Math.toDegrees(deltaOmegaT));
+
+        // --- Clamp to safe bounds ---
+        clampVelocities(self);
+    }
+
+    /**
+     * Computes the moment of inertia for a {@link GameObject} about its
+     * gravity center, using the parallel-axis (Huygens–Steiner) theorem
+     * when the gravity center differs from the geometric center.
+     *
+     * @param go   The game object.
+     * @param mass The mass of the object.
+     * @return The moment of inertia (kg·px²), or 0 if mass ≤ 0.
+     */
+    private float computeInertia(GameObject go, float mass) {
+        if (mass <= 0) return 0;
+        float w = go.getWidth();
+        float h = go.getHeight();
+
+        // Inertia about geometric center
+        float iCenter;
+        if (go.getShapeType() == ShapeType.CIRCLE) {
+            float r = w / 2.0f;
+            iCenter = mass * r * r / 2.0f;
+        } else {
+            iCenter = mass * (w * w + h * h) / 12.0f;
+        }
+
+        // Parallel-axis theorem: I_gc = I_center + m·d²
+        float dxGc = go.getGravityCenterX() - w / 2.0f;
+        float dyGc = go.getGravityCenterY() - h / 2.0f;
+        float dSq = dxGc * dxGc + dyGc * dyGc;
+        return iCenter + mass * dSq;
+    }
+
+    /**
+     * Returns the effective inverse inertia for an entity, taking its
+     * {@link ShapeType} and the current collision speed into account.
+     * <ul>
+     *   <li>{@link ShapeType#CIRCLE}: always rotatable → full 1/I</li>
+     *   <li>{@link ShapeType#RECTANGLE}, {@link ShapeType#LINE} and others:
+     *       rotation is suppressed (returns 0) unless the squared relative
+     *       velocity exceeds {@link #ROTATION_VELOCITY_THRESHOLD}².</li>
+     * </ul>
+     *
+     * @param shape      The shape type of the entity.
+     * @param isDynamic  Whether the entity is DYNAMIC.
+     * @param inertia    The pre-computed moment of inertia.
+     * @param relSpeedSq The squared magnitude of the relative linear velocity.
+     * @return Effective inverse inertia (1/I or 0).
+     */
+    private float computeEffectiveInvInertia(ShapeType shape, boolean isDynamic,
+                                             float inertia, float relSpeedSq) {
+        if (!isDynamic || inertia <= 0) {
+            return 0.0f;
+        }
+        // CIRCLE shapes always receive angular impulse
+        if (shape == ShapeType.CIRCLE) {
+            return 1.0f / inertia;
+        }
+        // RECTANGLE, LINE, etc.: only rotate under extreme collision speed
+        float thresholdSq = ROTATION_VELOCITY_THRESHOLD * ROTATION_VELOCITY_THRESHOLD;
+        if (relSpeedSq >= thresholdSq) {
+            return 1.0f / inertia;
+        }
+        // Below threshold: no rotation
+        return 0.0f;
+    }
+
+    /**
+     * Zeroes near-zero velocities to prevent jitter and clamps excessive
+     * velocities to keep the simulation stable.
+     *
+     * @param entity The entity whose velocities are to be clamped.
+     */
+    private void clampVelocities(GameObject entity) {
+        // Zero out near-zero velocities
+        if (Math.abs(entity.vx) < MIN_LINEAR_VELOCITY) entity.vx = 0;
+        if (Math.abs(entity.vy) < MIN_LINEAR_VELOCITY) entity.vy = 0;
+        if (Math.abs(entity.getVa()) < MIN_ANGULAR_VELOCITY) entity.setVa(0);
+
+        // Clamp to maximum
+        entity.vx = Math.max(-MAX_LINEAR_VELOCITY, Math.min(MAX_LINEAR_VELOCITY, entity.vx));
+        entity.vy = Math.max(-MAX_LINEAR_VELOCITY, Math.min(MAX_LINEAR_VELOCITY, entity.vy));
+        entity.setVa(Math.max(-MAX_ANGULAR_VELOCITY, Math.min(MAX_ANGULAR_VELOCITY, entity.getVa())));
     }
 }

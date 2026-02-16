@@ -34,6 +34,11 @@ public class Entity<T> {
     private Material material = Material.DEFAULT;
     private float mass = 1.0f;
 
+    // Centre de gravité relatif au coin supérieur gauche de l'entité.
+    // Par défaut, il est au centre géométrique (mis à jour via setSize).
+    private float gravityCenterX = 0f;
+    private float gravityCenterY = 0f;
+
     private ShapeType shapeType = ShapeType.RECTANGLE;
 
     Layer layer = null;
@@ -85,6 +90,9 @@ public class Entity<T> {
     public T setSize(int width, int height) {
         this.width = width;
         this.height = height;
+        // Recalculate default gravity center to geometric center
+        this.gravityCenterX = width / 2.0f;
+        this.gravityCenterY = height / 2.0f;
         boundingBox.setRect(x, y, width, height);
         return (T) this;
     }
@@ -112,12 +120,22 @@ public class Entity<T> {
         return name;
     }
 
+    /**
+     * Returns the X coordinate of the gravity center in world space.
+     * Defaults to geometric center unless overridden via
+     * {@link #setGravityCenterX(float)}.
+     */
     public float getCenterX() {
-        return x + width / 2.0f;
+        return x + gravityCenterX;
     }
 
+    /**
+     * Returns the Y coordinate of the gravity center in world space.
+     * Defaults to geometric center unless overridden via
+     * {@link #setGravityCenterY(float)}.
+     */
     public float getCenterY() {
-        return y + height / 2.0f;
+        return y + gravityCenterY;
     }
 
     public float getX() {
@@ -226,6 +244,46 @@ public class Entity<T> {
         return material;
     }
 
+    /**
+     * Sets the gravity center X offset relative to the entity's top-left corner.
+     * @param gcx X offset in pixels.
+     * @return this entity.
+     */
+    public T setGravityCenterX(float gcx) {
+        this.gravityCenterX = gcx;
+        return (T) this;
+    }
+
+    /**
+     * Sets the gravity center Y offset relative to the entity's top-left corner.
+     * @param gcy Y offset in pixels.
+     * @return this entity.
+     */
+    public T setGravityCenterY(float gcy) {
+        this.gravityCenterY = gcy;
+        return (T) this;
+    }
+
+    /**
+     * Sets both gravity center offsets at once.
+     * @param gcx X offset relative to top-left.
+     * @param gcy Y offset relative to top-left.
+     * @return this entity.
+     */
+    public T setGravityCenter(float gcx, float gcy) {
+        this.gravityCenterX = gcx;
+        this.gravityCenterY = gcy;
+        return (T) this;
+    }
+
+    public float getGravityCenterX() {
+        return gravityCenterX;
+    }
+
+    public float getGravityCenterY() {
+        return gravityCenterY;
+    }
+
     public int getDebugLevel() {
         return debugLevel;
     }
@@ -233,7 +291,8 @@ public class Entity<T> {
     public String[] getDebugInfo() {
         return new String[] { "id=" + id, "name=" + name, "pos=(%4.2f,%4.2f)".formatted(x, y),
                 "size=(" + width + "x" + height + ")", "vel=(%4.2f,%4.2f)".formatted(vx, vy),
-                "angle=%4.2f".formatted(angle), "va=%4.2f".formatted(va) };
+                "angle=%4.2f".formatted(angle), "va=%4.2f".formatted(va),
+                "gc=(%4.2f,%4.2f)".formatted(gravityCenterX, gravityCenterY) };
     }
 
     public Rectangle2D getBounds() {

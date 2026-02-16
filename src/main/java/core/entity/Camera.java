@@ -44,4 +44,11 @@ public class Camera extends Entity<Camera> {
         return active;
     }
 
+    @Override
+    public String[] getDebugInfo() {
+        return new String[] { "Camera: " + getName(), "Target: " + (target != null ? target.getName() : "None"),
+                String.format("Position: (%.2f, %.2f)", x, y), String.format("Tween Factor: %.2f", tweenFactor),
+                "Active: " + active };
+    }
+
 }

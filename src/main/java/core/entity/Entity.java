@@ -32,6 +32,7 @@ public class Entity<T> {
     public float va = 0f;
 
     private Material material = Material.DEFAULT;
+    private float mass = 1.0f;
 
     private ShapeType shapeType = ShapeType.RECTANGLE;
 
@@ -192,6 +193,15 @@ public class Entity<T> {
     public T setMaterial(Material material) {
         this.material = material;
         return (T) this;
+    }
+
+    public T setMass(float mass) {
+        this.mass = mass;
+        return (T) this;
+    }
+
+    public float getMass() {
+        return mass;
     }
 
     public T setVa(float va) {

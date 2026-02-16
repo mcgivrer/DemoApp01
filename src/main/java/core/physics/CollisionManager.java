@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import core.App;
+import core.behavior.CollisionBehavior;
 import core.entity.Entity;
 import core.entity.GameObject;
 import core.entity.PhysicsType;
@@ -14,22 +15,25 @@ import core.utils.Configuration;
 import core.utils.Service;
 
 /**
- * Manages collision detection and resolution between {@link GameObject} entities
+ * Manages collision <strong>detection</strong> between {@link GameObject} entities
  * in a {@link Scene}. Uses AABB (Axis-Aligned Bounding Box) intersection tests
- * and resolves collisions along the axis of minimum overlap (SAT-lite).
+ * and computes overlap along each axis (SAT-lite).
  * <p>
- * Collision response respects {@link PhysicsType}: STATIC entities are never moved,
- * DYNAMIC entities receive positional correction and velocity adjustment using
- * the {@link Material} restitution and friction coefficients.
+ * Collision <strong>response</strong> is delegated to {@link CollisionBehavior}
+ * instances attached to each entity. The manager filters each entity's behaviors
+ * by {@code instanceof CollisionBehavior} and invokes
+ * {@link CollisionBehavior#onCollision} with a {@link CollisionEvent} describing
+ * the collision from that entity's perspective.
  *
+ * @see CollisionBehavior
+ * @see CollisionEvent
  * @see GameObject
  * @see PhysicsType
- * @see Material
  * @see Scene
  *
  * @author Frédéric Delorme
  * @since 2026
- * @version 0.0.2
+ * @version 0.0.3
  */
 public class CollisionManager extends Service {
 
@@ -48,9 +52,12 @@ public class CollisionManager extends Service {
     }
 
     /**
-     * Detects and resolves collisions for all active {@link GameObject} pairs in
-     * the scene. Each unique pair is processed exactly once to avoid duplicate
-     * resolution.
+     * Detects collisions for all active {@link GameObject} pairs in
+     * the scene. Each unique pair is processed exactly once.
+     * <p>
+     * When an intersection is found the manager builds a {@link CollisionEvent}
+     * and dispatches it to every {@link CollisionBehavior} attached to each
+     * involved entity (filtered via {@code instanceof}).
      *
      * @param scene     The current scene containing the entities.
      * @param deltaTime The elapsed time since the last frame (in seconds).
@@ -83,7 +90,7 @@ public class CollisionManager extends Service {
                 boolean bDynamic = goB.getPhysicsType() == PhysicsType.DYNAMIC;
                 if (!aDynamic && !bDynamic) continue;
 
-                // Skip pairs where both are NONE
+                // Skip pairs involving NONE physics type
                 if (goA.getPhysicsType() == PhysicsType.NONE
                         || goB.getPhysicsType() == PhysicsType.NONE) continue;
 
@@ -120,65 +127,31 @@ public class CollisionManager extends Service {
                     penetration = overlapY;
                 }
 
-                // --- Positional correction ---
-                // Distribute correction based on physics types
-                if (aDynamic && bDynamic) {
-                    float half = penetration / 2.0f;
-                    goA.setPosition(goA.x + nx * half, goA.y + ny * half);
-                    goB.setPosition(goB.x - nx * half, goB.y - ny * half);
-                } else if (aDynamic) {
-                    // Only A moves (B is STATIC)
-                    goA.setPosition(goA.x + nx * penetration, goA.y + ny * penetration);
-                } else {
-                    // Only B moves (A is STATIC)
-                    goB.setPosition(goB.x - nx * penetration, goB.y - ny * penetration);
-                }
+                // --- Delegate response to CollisionBehavior instances ---
+                // Event for entity A: normal points away from B toward A
+                CollisionEvent eventA = new CollisionEvent(goB, nx, ny, penetration, aDynamic, bDynamic);
+                dispatchCollision(goA, eventA);
 
-                // --- Velocity response using Material properties ---
-                float restitution = Math.min(
-                        goA.getMaterial().restitution(),
-                        goB.getMaterial().restitution());
-                float friction = (goA.getMaterial().friction() + goB.getMaterial().friction()) / 2.0f;
-
-                // Relative velocity along collision normal
-                float relVn = (goA.vx - goB.vx) * nx + (goA.vy - goB.vy) * ny;
-
-                // Only resolve if entities are approaching each other
-                if (relVn < 0) continue;
-
-                float impulse = -(1 + restitution) * relVn;
-
-                // Distribute impulse based on physics types
-                if (aDynamic && bDynamic) {
-                    float halfImpulse = impulse / 2.0f;
-                    goA.vx += halfImpulse * nx;
-                    goA.vy += halfImpulse * ny;
-                    goB.vx -= halfImpulse * nx;
-                    goB.vy -= halfImpulse * ny;
-                } else if (aDynamic) {
-                    goA.vx += impulse * nx;
-                    goA.vy += impulse * ny;
-                } else {
-                    goB.vx -= impulse * nx;
-                    goB.vy -= impulse * ny;
-                }
-
-                // Apply friction to tangential velocity
-                float tx = -ny;
-                float ty = nx;
-                if (aDynamic) {
-                    float tangentVelA = goA.vx * tx + goA.vy * ty;
-                    goA.vx -= friction * tangentVelA * tx;
-                    goA.vy -= friction * tangentVelA * ty;
-                }
-                if (bDynamic) {
-                    float tangentVelB = goB.vx * tx + goB.vy * ty;
-                    goB.vx -= friction * tangentVelB * tx;
-                    goB.vy -= friction * tangentVelB * ty;
-                }
+                // Event for entity B: inverted normal (points away from A toward B)
+                CollisionEvent eventB = new CollisionEvent(goA, -nx, -ny, penetration, bDynamic, aDynamic);
+                dispatchCollision(goB, eventB);
             }
         }
         stats.put("collisions", collisionCount);
+    }
+
+    /**
+     * Filters the behaviors of {@code entity} to find {@link CollisionBehavior}
+     * instances and invokes {@link CollisionBehavior#onCollision} on each of them.
+     *
+     * @param entity The entity whose collision behaviors should be triggered.
+     * @param event  The collision event describing the collision context.
+     */
+    private void dispatchCollision(GameObject entity, CollisionEvent event) {
+        entity.getBehaviors().stream()
+                .filter(CollisionBehavior.class::isInstance)
+                .map(CollisionBehavior.class::cast)
+                .forEach(cb -> cb.onCollision(entity, event));
     }
 
     /**

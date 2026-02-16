@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 
 import core.App;
 import core.behavior.CameraBehavior;
+import core.behavior.DefaultCollisionResponseBehavior;
 import core.behavior.GravityBehavior;
 import core.behavior.PlayerInputBehavior;
 import core.behavior.VelocityBehavior;
@@ -79,7 +80,8 @@ public class DemoScene extends Scene {
                 .setMaterial(Material.ICE).setDebugLevel(2).setPriority(10).setAttribute("speed", 2000f)
                 .setAttribute("angularSpeed", 5f).setAttribute("jumpFactor", 4.0f)
                 .add(new GravityBehavior(world.getGravity())).add(new VelocityBehavior())
-                .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()));
+                .add(new WorldContainedBehavior(world)).add(new PlayerInputBehavior(app.getInputHandler()))
+                .add(new DefaultCollisionResponseBehavior());
         addEntity(player);
 
         generateBalls(world, foregroundLayer, 200);
@@ -105,7 +107,8 @@ public class DemoScene extends Scene {
                     .setVelocity(1500f - (3000F * (float) Math.random()), 1500f - (3000F * (float) Math.random()))
                     .setFillColor(baseColor).setEdgeColor(baseColor.darker().darker().darker())
                     .setMaterial(Material.SUPERBALL).add(new GravityBehavior(world.getGravity()))
-                    .add(new VelocityBehavior()).add(new WorldContainedBehavior(world)).setDebugLevel(3);
+                    .add(new VelocityBehavior()).add(new WorldContainedBehavior(world))
+                    .add(new DefaultCollisionResponseBehavior()).setDebugLevel(3);
             midLayer.add(ball);
             addEntity(ball);
         }

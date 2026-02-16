@@ -30,7 +30,7 @@ public class GameObjectRenderPlugin implements RenderPlugin<GameObject> {
         // Appliquer la rotation autour du centre de l'entité
         Graphics2D g2 = (Graphics2D) g.create();
         double angleRad = Math.toRadians(entity.getAngle());
-        g2.rotate(angleRad, x + width / 2.0, y + height / 2.0);
+        g2.rotate(angleRad, entity.getCenterX(), entity.getCenterY());
 
         switch (entity.getShapeType()) {
         case POINT -> {

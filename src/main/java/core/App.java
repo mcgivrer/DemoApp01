@@ -102,8 +102,8 @@ public class App {
             // Main application loop logic goes here
             if (!pause) {
                 startTime = endTime;
-                for (int i = 0; i < 5; i++) {
-                    update(elapsed / (5 * 1_000_000_000f), stats);
+                for (int i = 0; i < 2; i++) {
+                    update(elapsed / (2 * 1_000_000_000f), stats);
                 }
                 draw(elapsed / 1_000_000_000, stats);
             }

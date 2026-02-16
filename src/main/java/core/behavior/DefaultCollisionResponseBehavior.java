@@ -91,38 +91,80 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
         float invInertiaOther = computeEffectiveInvInertia(
                 other.getShapeType(), otherDynamic, inertiaOther, relSpeedSq);
 
-        // --- Contact point lever arms ---
-        // The lever arm goes from the gravity center to the contact edge.
-        // Contact edge approximation: gravity center offset + half-size toward
-        // the collision normal direction.
-        // For self: contact is in the −n direction from its gravity center
-        float selfGcX = self.getGravityCenterX();  // relative to top-left
+        // --- Contact point lever arms (rotation-aware) ---
+        // Transform the collision normal into each entity's local frame to
+        // find the support point (farthest corner toward the other entity),
+        // then compute the lever arm from gravity center to that point
+        // in world space.
+        float selfGcX = self.getGravityCenterX();
         float selfGcY = self.getGravityCenterY();
         float otherGcX = other.getGravityCenterX();
         float otherGcY = other.getGravityCenterY();
 
-        // Vector from gravity center to contact point (edge facing other)
-        float rSelfX = -nx * (self.getWidth() / 2.0f) + (self.getWidth() / 2.0f - selfGcX);
-        float rSelfY = -ny * (self.getHeight() / 2.0f) + (self.getHeight() / 2.0f - selfGcY);
-        float rOtherX = nx * (other.getWidth() / 2.0f) + (other.getWidth() / 2.0f - otherGcX);
-        float rOtherY = ny * (other.getHeight() / 2.0f) + (other.getHeight() / 2.0f - otherGcY);
+        // Self: rotate −n into local frame → support point → lever arm
+        float selfAngleRad = (float) Math.toRadians(self.getAngle());
+        float selfCos = (float) Math.cos(selfAngleRad);
+        float selfSin = (float) Math.sin(selfAngleRad);
+        float selfLocalNx =  selfCos * (-nx) + selfSin * (-ny);
+        float selfLocalNy = -selfSin * (-nx) + selfCos * (-ny);
+        float selfHalfW = self.getWidth() / 2.0f;
+        float selfHalfH = self.getHeight() / 2.0f;
+        float sSupportX = selfHalfW + Math.signum(selfLocalNx) * selfHalfW;
+        float sSupportY = selfHalfH + Math.signum(selfLocalNy) * selfHalfH;
+        float rSLocalX = sSupportX - selfGcX;
+        float rSLocalY = sSupportY - selfGcY;
+        float rSelfX = selfCos * rSLocalX - selfSin * rSLocalY;
+        float rSelfY = selfSin * rSLocalX + selfCos * rSLocalY;
+
+        // Other: rotate n into local frame → support point → lever arm
+        float otherAngleRad = (float) Math.toRadians(other.getAngle());
+        float otherCos = (float) Math.cos(otherAngleRad);
+        float otherSin = (float) Math.sin(otherAngleRad);
+        float oLocalNx =  otherCos * nx + otherSin * ny;
+        float oLocalNy = -otherSin * nx + otherCos * ny;
+        float otherHalfW = other.getWidth() / 2.0f;
+        float otherHalfH = other.getHeight() / 2.0f;
+        float oSupportX = otherHalfW + Math.signum(oLocalNx) * otherHalfW;
+        float oSupportY = otherHalfH + Math.signum(oLocalNy) * otherHalfH;
+        float rOLocalX = oSupportX - otherGcX;
+        float rOLocalY = oSupportY - otherGcY;
+        float rOtherX = otherCos * rOLocalX - otherSin * rOLocalY;
+        float rOtherY = otherSin * rOLocalX + otherCos * rOLocalY;
+
+        // --- Cross products r × n (used for correction and impulse) ---
+        float rCrossNSelf  = rSelfX  * ny - rSelfY  * nx;
+        float rCrossNOther = rOtherX * ny - rOtherY * nx;
 
         // --- Angular velocities (convert degrees/s → radians/s) ---
         float omegaSelf = (float) Math.toRadians(self.getVa());
         float omegaOther = (float) Math.toRadians(other.getVa());
 
         // --- Velocity at contact point = v_linear + ω × r ---
-        // In 2D: ω × r = (−ω·ry , ω·rx)
         float vSelfX = self.vx - omegaSelf * rSelfY;
         float vSelfY = self.vy + omegaSelf * rSelfX;
         float vOtherX = other.vx - omegaOther * rOtherY;
         float vOtherY = other.vy + omegaOther * rOtherX;
 
-        // --- Positional correction (mass-weighted, before velocity changes) ---
+        // --- Positional + angular correction (gravity-center aware) ---
         float correctionRatio = invMassSelf / invMassSum;
-        self.setPosition(
-                self.x + nx * penetration * correctionRatio,
-                self.y + ny * penetration * correctionRatio);
+        float totalCorrection = penetration * correctionRatio;
+        float angTerm = rCrossNSelf * rCrossNSelf * invInertiaSelf;
+        float corrDenom = invMassSelf + angTerm;
+        if (corrDenom > 1e-8f) {
+            float linCorr = (invMassSelf / corrDenom) * totalCorrection;
+            self.setPosition(
+                    self.x + nx * linCorr,
+                    self.y + ny * linCorr);
+            if (angTerm > 1e-8f) {
+                float angCorr = (rCrossNSelf * invInertiaSelf / corrDenom)
+                        * totalCorrection;
+                self.setAngle(self.getAngle() + (float) Math.toDegrees(angCorr));
+            }
+        } else {
+            self.setPosition(
+                    self.x + nx * totalCorrection,
+                    self.y + ny * totalCorrection);
+        }
 
         // --- Material properties ---
         float restitution = Math.min(
@@ -140,10 +182,6 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
             clampVelocities(self);
             return;
         }
-
-        // --- Cross products  r × n  (scalar in 2D) ---
-        float rCrossNSelf = rSelfX * ny - rSelfY * nx;
-        float rCrossNOther = rOtherX * ny - rOtherY * nx;
 
         // --- Normal impulse denominator (includes rotational inertia) ---
         float denomN = invMassSelf + invMassOther

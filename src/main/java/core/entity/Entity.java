@@ -295,8 +295,66 @@ public class Entity<T> {
                 "gc=(%4.2f,%4.2f)".formatted(gravityCenterX, gravityCenterY) };
     }
 
+    /**
+     * Returns the axis-aligned bounding box enclosing this entity's
+     * rotated shape. When the angle is 0 the bounds match the unrotated
+     * rectangle; otherwise they enclose the Oriented Bounding Box (OBB)
+     * rotated around the gravity center.
+     */
     public Rectangle2D getBounds() {
+        if (angle == 0f) {
+            boundingBox.setRect(x, y, width, height);
+        } else {
+            float gcxw = x + gravityCenterX;
+            float gcyw = y + gravityCenterY;
+            float rad = (float) Math.toRadians(angle);
+            float cos = (float) Math.cos(rad);
+            float sin = (float) Math.sin(rad);
+            float[] lx = { -gravityCenterX, width - gravityCenterX,
+                            width - gravityCenterX, -gravityCenterX };
+            float[] ly = { -gravityCenterY, -gravityCenterY,
+                            height - gravityCenterY, height - gravityCenterY };
+            float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE;
+            float maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
+            for (int k = 0; k < 4; k++) {
+                float cx = gcxw + cos * lx[k] - sin * ly[k];
+                float cy = gcyw + sin * lx[k] + cos * ly[k];
+                minX = Math.min(minX, cx);
+                minY = Math.min(minY, cy);
+                maxX = Math.max(maxX, cx);
+                maxY = Math.max(maxY, cy);
+            }
+            boundingBox.setRect(minX, minY, maxX - minX, maxY - minY);
+        }
         return this.boundingBox;
+    }
+
+    /**
+     * Returns the 4 corners of this entity's bounding rectangle rotated
+     * around its gravity center by the current angle.
+     * <p>
+     * The returned flat array is laid out as
+     * {@code [x0,y0, x1,y1, x2,y2, x3,y3]} where corner order (before
+     * rotation) is: top-left, top-right, bottom-right, bottom-left.
+     *
+     * @return 8-element float array with world-space corner coordinates.
+     */
+    public float[] getRotatedCorners() {
+        float gcxw = x + gravityCenterX;
+        float gcyw = y + gravityCenterY;
+        float rad = (float) Math.toRadians(angle);
+        float cos = (float) Math.cos(rad);
+        float sin = (float) Math.sin(rad);
+        float[] lx = { -gravityCenterX, width - gravityCenterX,
+                        width - gravityCenterX, -gravityCenterX };
+        float[] ly = { -gravityCenterY, -gravityCenterY,
+                        height - gravityCenterY, height - gravityCenterY };
+        float[] corners = new float[8];
+        for (int k = 0; k < 4; k++) {
+            corners[k * 2]     = gcxw + cos * lx[k] - sin * ly[k];
+            corners[k * 2 + 1] = gcyw + sin * lx[k] + cos * ly[k];
+        }
+        return corners;
     }
 
 }

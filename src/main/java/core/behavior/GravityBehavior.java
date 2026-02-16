@@ -2,7 +2,6 @@ package core.behavior;
 
 import core.entity.Entity;
 import core.entity.GameObject;
-import core.entity.PhysicType;
 
 /**
  * Behavior that applies a gravitational force to an entity by modifying its

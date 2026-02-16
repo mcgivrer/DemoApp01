@@ -16,7 +16,7 @@ public class GameObject extends Entity<GameObject> {
     private Polygon polygon;
     private Rectangle2D boundingBox = new Rectangle2D.Double(0, 0, 0, 0);
 
-    PhysicType physicsType = PhysicType.DYNAMIC;
+    PhysicsType physicsType = PhysicsType.DYNAMIC;
 
     public GameObject(String name) {
         super(name);
@@ -58,11 +58,11 @@ public class GameObject extends Entity<GameObject> {
         return this;
     }
 
-    public PhysicType getPhysicsType() {
+    public PhysicsType getPhysicsType() {
         return physicsType;
     }
 
-    public GameObject setPhysicsType(PhysicType physicsType) {
+    public GameObject setPhysicsType(PhysicsType physicsType) {
         this.physicsType = physicsType;
         return this;
     }

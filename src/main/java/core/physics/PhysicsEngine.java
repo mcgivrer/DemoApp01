@@ -7,8 +7,6 @@ import java.util.Properties;
 
 import core.App;
 import core.entity.Entity;
-import core.entity.GameObject;
-import core.entity.PhysicType;
 import core.scene.Scene;
 
 /**

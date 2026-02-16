@@ -1,0 +1,62 @@
+<svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond -->
+  <rect width="500" height="300" fill="#f8f9fa"/>
+  
+  <!-- Grille -->
+  <defs>
+    <pattern id="grid2" width="25" height="25" patternUnits="userSpaceOnUse">
+      <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="500" height="300" fill="url(#grid2)"/>
+  
+  <!-- Titre -->
+  <text x="250" y="25" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#333">Normale de collision et pénétration</text>
+  
+  <!-- Entité A (gauche) -->
+  <rect x="80" y="100" width="100" height="100" fill="#2196F3" fill-opacity="0.4" stroke="#2196F3" stroke-width="2"/>
+  <circle cx="130" cy="150" r="5" fill="#1565C0"/>
+  <text x="130" y="135" text-anchor="middle" font-family="Arial" font-size="11" fill="#1565C0" font-weight="bold">A</text>
+  
+  <!-- Entité B (droite) -->
+  <rect x="150" y="100" width="100" height="100" fill="#F44336" fill-opacity="0.4" stroke="#F44336" stroke-width="2"/>
+  <circle cx="200" cy="150" r="5" fill="#C62828"/>
+  <text x="200" y="135" text-anchor="middle" font-family="Arial" font-size="11" fill="#C62828" font-weight="bold">B</text>
+  
+  <!-- Zone de pénétration -->
+  <rect x="150" y="100" width="30" height="100" fill="#9C27B0" fill-opacity="0.3"/>
+  
+  <!-- Flèche pénétration -->
+  <line x1="150" y1="230" x2="180" y2="230" stroke="#9C27B0" stroke-width="2"/>
+  <line x1="150" y1="225" x2="150" y2="235" stroke="#9C27B0" stroke-width="2"/>
+  <line x1="180" y1="225" x2="180" y2="235" stroke="#9C27B0" stroke-width="2"/>
+  <text x="165" y="250" text-anchor="middle" font-family="Arial" font-size="10" fill="#9C27B0" font-weight="bold">pénétration</text>
+  
+  <!-- Flèche normale pour A (pointe vers la droite, away from B) -->
+  <defs>
+    <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4CAF50"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#FF9800"/>
+    </marker>
+  </defs>
+  
+  <!-- Normale pour A (pointe loin de B, donc vers la gauche) -->
+  <line x1="130" y1="150" x2="70" y2="150" stroke="#4CAF50" stroke-width="3" marker-end="url(#arrow-green)"/>
+  <text x="55" y="170" text-anchor="middle" font-family="Arial" font-size="10" fill="#4CAF50" font-weight="bold">n_A (-1, 0)</text>
+  
+  <!-- Normale pour B (pointe loin de A, donc vers la droite) -->
+  <line x1="200" y1="150" x2="260" y2="150" stroke="#FF9800" stroke-width="3" marker-end="url(#arrow-orange)"/>
+  <text x="275" y="170" text-anchor="middle" font-family="Arial" font-size="10" fill="#FF9800" font-weight="bold">n_B (1, 0)</text>
+  
+  <!-- Légende côté droit -->
+  <rect x="330" y="80" width="150" height="120" fill="white" stroke="#ccc" rx="5"/>
+  <text x="340" y="100" font-family="Arial" font-size="11" fill="#333" font-weight="bold">CollisionEvent</text>
+  <text x="340" y="120" font-family="monospace" font-size="9" fill="#4CAF50">// Pour A:</text>
+  <text x="340" y="135" font-family="monospace" font-size="9" fill="#666">nx=-1, ny=0</text>
+  <text x="340" y="150" font-family="monospace" font-size="9" fill="#666">other=B</text>
+  <text x="340" y="170" font-family="monospace" font-size="9" fill="#FF9800">// Pour B:</text>
+  <text x="340" y="185" font-family="monospace" font-size="9" fill="#666">nx=+1, ny=0</text>
+  <text x="340" y="200" font-family="monospace" font-size="9" fill="#666">other=A</text>
+</svg>

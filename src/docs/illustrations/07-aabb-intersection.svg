@@ -1,0 +1,66 @@
+<svg viewBox="0 0 500 350" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond -->
+  <rect width="500" height="350" fill="#f8f9fa"/>
+  
+  <!-- Grille -->
+  <defs>
+    <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+      <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="500" height="350" fill="url(#grid)"/>
+  
+  <!-- Titre -->
+  <text x="250" y="25" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#333">Test d'intersection AABB</text>
+  
+  <!-- Entité A - Rectangle bleu -->
+  <rect x="100" y="100" width="120" height="80" fill="#2196F3" fill-opacity="0.3" stroke="#2196F3" stroke-width="2"/>
+  <text x="160" y="145" text-anchor="middle" font-family="Arial" font-size="12" fill="#1565C0" font-weight="bold">Entity A</text>
+  
+  <!-- Centre de A -->
+  <circle cx="160" cy="140" r="4" fill="#1565C0"/>
+  <text x="160" y="190" text-anchor="middle" font-family="Arial" font-size="10" fill="#666">centerA</text>
+  
+  <!-- Entité B - Rectangle rouge -->
+  <rect x="180" y="120" width="100" height="100" fill="#F44336" fill-opacity="0.3" stroke="#F44336" stroke-width="2"/>
+  <text x="230" y="175" text-anchor="middle" font-family="Arial" font-size="12" fill="#C62828" font-weight="bold">Entity B</text>
+  
+  <!-- Centre de B -->
+  <circle cx="230" cy="170" r="4" fill="#C62828"/>
+  <text x="230" y="235" text-anchor="middle" font-family="Arial" font-size="10" fill="#666">centerB</text>
+  
+  <!-- Zone de chevauchement -->
+  <rect x="180" y="120" width="40" height="60" fill="#9C27B0" fill-opacity="0.4" stroke="#9C27B0" stroke-width="1" stroke-dasharray="4"/>
+  
+  <!-- Flèche dx -->
+  <line x1="160" y1="260" x2="230" y2="260" stroke="#333" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <text x="195" y="275" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">dx = 70px</text>
+  
+  <!-- Flèche dy -->
+  <line x1="320" y1="140" x2="320" y2="170" stroke="#333" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <text x="345" y="160" text-anchor="start" font-family="Arial" font-size="10" fill="#333">dy = 30px</text>
+  
+  <!-- Arrowhead marker -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+  
+  <!-- Légende -->
+  <rect x="350" y="80" width="130" height="100" fill="white" stroke="#ccc" rx="5"/>
+  <text x="360" y="100" font-family="Arial" font-size="11" fill="#333" font-weight="bold">Légende</text>
+  <rect x="360" y="110" width="15" height="10" fill="#2196F3" fill-opacity="0.3" stroke="#2196F3"/>
+  <text x="380" y="118" font-family="Arial" font-size="9" fill="#666">Entity A</text>
+  <rect x="360" y="125" width="15" height="10" fill="#F44336" fill-opacity="0.3" stroke="#F44336"/>
+  <text x="380" y="133" font-family="Arial" font-size="9" fill="#666">Entity B</text>
+  <rect x="360" y="140" width="15" height="10" fill="#9C27B0" fill-opacity="0.4" stroke="#9C27B0" stroke-dasharray="2"/>
+  <text x="380" y="148" font-family="Arial" font-size="9" fill="#666">Chevauchement</text>
+  <circle cx="367" cy="165" r="3" fill="#333"/>
+  <text x="380" y="168" font-family="Arial" font-size="9" fill="#666">Centre</text>
+  
+  <!-- Annotations calculs -->
+  <text x="30" y="310" font-family="monospace" font-size="10" fill="#333">overlapX = (120+100)/2 - |70| = 110 - 70 = 40px</text>
+  <text x="30" y="325" font-family="monospace" font-size="10" fill="#333">overlapY = (80+100)/2 - |30| = 90 - 30 = 60px</text>
+  <text x="30" y="340" font-family="monospace" font-size="10" fill="#4CAF50" font-weight="bold">overlapX &lt; overlapY → Normale horizontale</text>
+</svg>

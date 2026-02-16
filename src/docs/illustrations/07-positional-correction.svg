@@ -1,0 +1,52 @@
+<svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond -->
+  <rect width="600" height="250" fill="#f8f9fa"/>
+  
+  <!-- AVANT -->
+  <text x="150" y="25" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold" fill="#333">AVANT correction</text>
+  
+  <!-- Entité légère (se déplace plus) -->
+  <rect x="60" y="60" width="60" height="60" fill="#2196F3" fill-opacity="0.4" stroke="#2196F3" stroke-width="2"/>
+  <text x="90" y="95" text-anchor="middle" font-family="Arial" font-size="10" fill="#1565C0" font-weight="bold">m=1</text>
+  
+  <!-- Entité lourde -->
+  <rect x="100" y="60" width="100" height="100" fill="#F44336" fill-opacity="0.4" stroke="#F44336" stroke-width="2"/>
+  <text x="150" y="115" text-anchor="middle" font-family="Arial" font-size="10" fill="#C62828" font-weight="bold">m=10</text>
+  
+  <!-- Zone de pénétration -->
+  <rect x="100" y="60" width="20" height="60" fill="#9C27B0" fill-opacity="0.3"/>
+  <text x="110" y="180" text-anchor="middle" font-family="Arial" font-size="9" fill="#9C27B0">pén=20px</text>
+  
+  <!-- Flèche de séparation -->
+  <line x1="150" y1="200" x2="450" y2="200" stroke="#333" stroke-width="1" stroke-dasharray="5"/>
+  
+  <!-- APRÈS -->
+  <text x="450" y="25" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold" fill="#333">APRÈS correction</text>
+  
+  <!-- Entité légère déplacée de 18.18px vers la gauche -->
+  <rect x="322" y="60" width="60" height="60" fill="#2196F3" fill-opacity="0.4" stroke="#2196F3" stroke-width="2"/>
+  <text x="352" y="95" text-anchor="middle" font-family="Arial" font-size="10" fill="#1565C0" font-weight="bold">m=1</text>
+  
+  <!-- Entité lourde déplacée de 1.82px vers la droite -->
+  <rect x="400" y="60" width="100" height="100" fill="#F44336" fill-opacity="0.4" stroke="#F44336" stroke-width="2"/>
+  <text x="450" y="115" text-anchor="middle" font-family="Arial" font-size="10" fill="#C62828" font-weight="bold">m=10</text>
+  
+  <!-- Flèche de déplacement A -->
+  <defs>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2196F3"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#F44336"/>
+    </marker>
+  </defs>
+  
+  <!-- Annotation déplacements -->
+  <text x="352" y="140" text-anchor="middle" font-family="Arial" font-size="9" fill="#2196F3">-18.18px</text>
+  <text x="450" y="180" text-anchor="middle" font-family="Arial" font-size="9" fill="#F44336">+1.82px</text>
+  
+  <!-- Formules -->
+  <text x="300" y="210" text-anchor="middle" font-family="monospace" font-size="9" fill="#333">invMass_A = 1/1 = 1.0</text>
+  <text x="300" y="225" text-anchor="middle" font-family="monospace" font-size="9" fill="#333">invMass_B = 1/10 = 0.1</text>
+  <text x="300" y="240" text-anchor="middle" font-family="monospace" font-size="9" fill="#4CAF50">ratio_A = 1.0/1.1 ≈ 0.909 → 20 × 0.909 ≈ 18.18px</text>
+</svg>

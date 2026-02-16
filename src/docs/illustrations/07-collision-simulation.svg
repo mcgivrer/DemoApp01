@@ -1,0 +1,98 @@
+<svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond du monde de jeu -->
+  <rect width="600" height="400" fill="#1a1a2e"/>
+  
+  <!-- Grille de fond -->
+  <defs>
+    <pattern id="gameGrid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#2a2a4e" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="600" height="400" fill="url(#gameGrid)"/>
+  
+  <!-- Sol (STATIC) -->
+  <rect x="0" y="350" width="600" height="50" fill="#4a4a6a" stroke="#6a6a8a" stroke-width="2"/>
+  <text x="300" y="380" text-anchor="middle" font-family="Arial" font-size="12" fill="#888">Sol (STATIC)</text>
+  
+  <!-- Mur gauche (STATIC) -->
+  <rect x="0" y="100" width="30" height="250" fill="#4a4a6a" stroke="#6a6a8a" stroke-width="2"/>
+  
+  <!-- Mur droit (STATIC) -->
+  <rect x="570" y="100" width="30" height="250" fill="#4a4a6a" stroke="#6a6a8a" stroke-width="2"/>
+  
+  <!-- Plateforme (STATIC) -->
+  <rect x="200" y="250" width="150" height="20" fill="#5a5a7a" stroke="#7a7a9a" stroke-width="2"/>
+  <text x="275" y="245" text-anchor="middle" font-family="Arial" font-size="9" fill="#aaa">Plateforme</text>
+  
+  <!-- Balle qui tombe (DYNAMIC) avec effet de rebond -->
+  <circle cx="275" cy="180" r="25" fill="#FF6B6B" stroke="#FF8E8E" stroke-width="2"/>
+  <text x="275" y="185" text-anchor="middle" font-family="Arial" font-size="10" fill="white" font-weight="bold">Ball</text>
+  
+  <!-- Vecteur vitesse de la balle -->
+  <defs>
+    <marker id="velocityArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#FFE66D"/>
+    </marker>
+  </defs>
+  <line x1="275" y1="180" x2="275" y2="230" stroke="#FFE66D" stroke-width="2" marker-end="url(#velocityArrow)"/>
+  <text x="285" y="215" font-family="Arial" font-size="9" fill="#FFE66D">vy</text>
+  
+  <!-- Cube joueur (DYNAMIC) -->
+  <rect x="100" y="290" width="40" height="60" fill="#4ECDC4" stroke="#6EE7DE" stroke-width="2"/>
+  <text x="120" y="325" text-anchor="middle" font-family="Arial" font-size="9" fill="white" font-weight="bold">Player</text>
+  
+  <!-- Vecteur vitesse du joueur -->
+  <line x1="140" y1="320" x2="180" y2="320" stroke="#FFE66D" stroke-width="2" marker-end="url(#velocityArrow)"/>
+  <text x="160" y="310" font-family="Arial" font-size="9" fill="#FFE66D">vx</text>
+  
+  <!-- Ennemi (DYNAMIC) -->
+  <rect x="450" y="300" width="50" height="50" fill="#9B59B6" stroke="#B370CF" stroke-width="2"/>
+  <text x="475" y="330" text-anchor="middle" font-family="Arial" font-size="9" fill="white" font-weight="bold">Enemy</text>
+  
+  <!-- Collision entre balle et plateforme -->
+  <g>
+    <!-- Zone de collision prédite -->
+    <ellipse cx="275" cy="225" rx="30" ry="10" fill="none" stroke="#FF6B6B" stroke-width="1" stroke-dasharray="3" opacity="0.5"/>
+    
+    <!-- Normale de collision (vers le haut) -->
+    <line x1="275" y1="250" x2="275" y2="210" stroke="#4CAF50" stroke-width="3" marker-end="url(#normalArrow)"/>
+    <defs>
+      <marker id="normalArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#4CAF50"/>
+      </marker>
+    </defs>
+    <text x="255" y="205" font-family="Arial" font-size="9" fill="#4CAF50" font-weight="bold">n(0,-1)</text>
+  </g>
+  
+  <!-- Légende -->
+  <rect x="400" y="20" width="180" height="120" fill="#2a2a4e" fill-opacity="0.9" stroke="#4a4a6a" rx="5"/>
+  <text x="410" y="40" font-family="Arial" font-size="11" fill="white" font-weight="bold">Légende</text>
+  
+  <rect x="410" y="50" width="15" height="15" fill="#4a4a6a" stroke="#6a6a8a"/>
+  <text x="430" y="62" font-family="Arial" font-size="9" fill="#ccc">STATIC</text>
+  
+  <circle cx="417" cy="80" r="8" fill="#FF6B6B" stroke="#FF8E8E"/>
+  <text x="430" y="83" font-family="Arial" font-size="9" fill="#ccc">DYNAMIC (Circle)</text>
+  
+  <rect x="410" y="95" width="15" height="15" fill="#4ECDC4" stroke="#6EE7DE"/>
+  <text x="430" y="107" font-family="Arial" font-size="9" fill="#ccc">DYNAMIC (Rectangle)</text>
+  
+  <line x1="410" y1="125" x2="435" y2="125" stroke="#FFE66D" stroke-width="2" marker-end="url(#velocityArrow)"/>
+  <text x="445" y="128" font-family="Arial" font-size="9" fill="#ccc">Vitesse</text>
+  
+  <!-- Titre -->
+  <text x="200" y="30" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="white">Simulation de collision en temps réel</text>
+  
+  <!-- Indicateur de contact -->
+  <circle cx="275" cy="180" r="30" fill="none" stroke="#FFE66D" stroke-width="2" stroke-dasharray="5" opacity="0.6">
+    <animate attributeName="r" values="25;35;25" dur="1s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="1s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Info collision -->
+  <rect x="20" y="20" width="170" height="70" fill="#2a2a4e" fill-opacity="0.9" stroke="#4a4a6a" rx="5"/>
+  <text x="30" y="40" font-family="monospace" font-size="10" fill="#4CAF50">Collision détectée:</text>
+  <text x="30" y="55" font-family="monospace" font-size="9" fill="#ccc">Ball ↔ Plateforme</text>
+  <text x="30" y="70" font-family="monospace" font-size="9" fill="#ccc">penetration: 5.2px</text>
+  <text x="30" y="85" font-family="monospace" font-size="9" fill="#ccc">normal: (0, -1)</text>
+</svg>

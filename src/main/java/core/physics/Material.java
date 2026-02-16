@@ -20,4 +20,5 @@ public record Material(String name, float friction, float restitution) {
     public static final Material STEEL = new Material("steel", 0.2f, 0.1f);
     public static final Material WATER = new Material("water", 0.05f, 0.0f);
     public static final Material SUPERBALL = new Material("superball", 0.002f, 0.001f);
+    public static final Material STONE = new Material("stone", 0.6f, 0.2f);
 }

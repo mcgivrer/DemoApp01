@@ -13,6 +13,7 @@ import core.behavior.VelocityBehavior;
 import core.behavior.WorldContainedBehavior;
 import core.entity.Camera;
 import core.entity.GameObject;
+import core.entity.PhysicsType;
 import core.entity.ShapeType;
 import core.entity.World;
 import core.graphics.Layer;
@@ -73,6 +74,14 @@ public class DemoScene extends Scene {
         World world = new World("earth").setGravity(9.81f).setSize(window.getWidth(), window.getHeight());
         addEntity(world);
 
+        GameObject ground = new GameObject("ground").setPosition(0, window.getHeight() - 50)
+                .setSize(window.getWidth(), 50).setFillColor(Color.DARK_GRAY).setEdgeColor(Color.BLACK)
+                .setMaterial(Material.STONE).setMass(1000f).setPhysicsType(PhysicsType.STATIC)
+                .add(new WorldContainedBehavior(world)).add(new DefaultCollisionResponseBehavior());
+
+        midLayer.add(ground);
+        addEntity(ground);
+
         // add a player entity
         GameObject player = new GameObject("player")
                 .setPosition((world.getWidth() - 24) / 2, (world.getHeight() - 32) / 2).setSize(24, 32)
@@ -102,14 +111,14 @@ public class DemoScene extends Scene {
             Color baseColor = new Color((float) Math.random(), (float) Math.random(), (float) Math.random());
             GameObject ball = new GameObject("ball_" + i)
                     .setPosition((float) (Math.random() * (world.getWidth() - size)),
-                            (float) (Math.random() * (world.getHeight() - size)))
+                            (float) ((Math.random() * 100) + 50))
                     .setSize(size, size).setShapeType(ShapeType.CIRCLE)
                     .setVelocity(1500f - (3000F * (float) Math.random()), 1500f - (3000F * (float) Math.random()))
                     .setFillColor(baseColor).setEdgeColor(baseColor.darker().darker().darker())
                     .setMaterial(Material.SUPERBALL).setMass(size * size / 100.0f)
-                    .add(new GravityBehavior(world.getGravity()))
-                    .add(new VelocityBehavior()).add(new WorldContainedBehavior(world))
-                    .add(new DefaultCollisionResponseBehavior()).setDebugLevel(3);
+                    .add(new GravityBehavior(world.getGravity())).add(new VelocityBehavior())
+                    .add(new WorldContainedBehavior(world)).add(new DefaultCollisionResponseBehavior())
+                    .setDebugLevel(3);
             midLayer.add(ball);
             addEntity(ball);
         }

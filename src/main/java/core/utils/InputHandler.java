@@ -55,6 +55,11 @@ public class InputHandler extends KeyAdapter {
                 App.debug = App.debug + 1 < 10 ? App.debug + 1 : 0;
             }
         }
+        case KeyEvent.VK_P -> {
+            if (App.mode.equals(App.AppMode.DEVELOPMENT)) {
+                App.pause = !App.pause;
+            }
+        }
 
         default -> {
         }

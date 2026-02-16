@@ -72,10 +72,11 @@ public class DefaultCollisionResponseBehavior implements CollisionBehavior {
         float friction = (self.getMaterial().friction() + other.getMaterial().friction()) / 2.0f;
 
         // Relative velocity projected onto the collision normal
+        // relVn < 0 means self is moving toward other (approaching) → must resolve
+        // relVn >= 0 means self is moving away from other (separating) → skip
         float relVn = (self.vx - other.vx) * nx + (self.vy - other.vy) * ny;
 
-        // Only resolve if the entities are approaching along the normal
-        if (relVn <= 0) {
+        if (relVn >= 0) {
             return;
         }
 

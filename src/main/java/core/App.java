@@ -43,6 +43,7 @@ public class App {
     public static AppMode mode = AppMode.DEVELOPMENT;
 
     public static boolean exit = false;
+    public static boolean pause = false;
 
     public Configuration config = null;
     private PhysicsEngine physicsEngine;
@@ -99,11 +100,13 @@ public class App {
         stats.put("fps", FPS);
         do {
             // Main application loop logic goes here
-            startTime = endTime;
-            for (int i = 0; i < 5; i++) {
-                update(elapsed / (5 * 1_000_000_000f), stats);
+            if (!pause) {
+                startTime = endTime;
+                for (int i = 0; i < 5; i++) {
+                    update(elapsed / (5 * 1_000_000_000f), stats);
+                }
+                draw(elapsed / 1_000_000_000, stats);
             }
-            draw(elapsed / 1_000_000_000, stats);
             frameCount++;
             timeFrame += elapsed;
             internalTime += elapsed;

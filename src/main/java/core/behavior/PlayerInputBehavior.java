@@ -69,7 +69,7 @@ public class PlayerInputBehavior implements Behavior<GameObject> {
             // Implement as needed, e.g., set a "dashing" state or trigger an attack
             ParticleSystem explosion = Scene.currentScene.getEntityByName("explosion");
             if (explosion != null) {
-                explosion.setPosition(entity.getX(), entity.getY());
+                explosion.setPosition(entity.getX()+entity.getWidth()/2, entity.getY()+entity.getHeight()/2 );
                 ExplosionEmitterBehavior emitter = explosion.getBehavior(ExplosionEmitterBehavior.class);
                 if (emitter != null) {
                     emitter.presetFireExplosion();

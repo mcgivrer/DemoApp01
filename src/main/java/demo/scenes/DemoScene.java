@@ -14,6 +14,7 @@ import core.behavior.WorldContainedBehavior;
 import core.behavior.particle.ExplosionEmitterBehavior;
 import core.behavior.particle.FountainEmitterBehavior;
 import core.behavior.particle.ParticlePhysicsBehavior;
+import core.behavior.particle.RainEmitterBehavior;
 import core.entity.Camera;
 import core.entity.GameObject;
 import core.entity.ParticleSystem;
@@ -154,6 +155,20 @@ public class DemoScene extends Scene {
         explosion.add(new ParticlePhysicsBehavior());
         explosion.setLayer(midLayer);
         addEntity(explosion);
+
+        /// rainy day
+        // Pluie orageuse
+        ParticleSystem rain = new ParticleSystem("rain", 500);
+        rain.setPosition(0, 0);
+        rain.setLineRenderingForRain(); 
+        rain.add(new RainEmitterBehavior()
+            .presetDrizzle()
+            .setRainColors(Color.BLUE,Color.BLUE.darker().darker().darker())
+            .setEmissionWidth(window.getWidth())  // Couvre toute la fenêtre
+            .setEmissionYOffset(-20));            // Spawn légèrement au-dessus
+        rain.add(new ParticlePhysicsBehavior().presetRain());
+        rain.setLayer(foregroundLayer);
+        addEntity(rain);
 
         Camera camera = new Camera("cam01").setSize(600, 400).setTarget(player).setTweenFactor(5.0f).setActive(true)
                 .add(new CameraBehavior(window, 0.5f, 0.75f));

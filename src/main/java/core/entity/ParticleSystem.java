@@ -66,6 +66,26 @@ public class ParticleSystem extends GameObject {
     /** World gravity (inherited from World or set manually). */
     private float gravity = 9.81f;
 
+    // ==================== Render configuration ====================
+
+    /** Render shape type. */
+    public enum RenderShape { CIRCLE, SQUARE, LINE }
+
+    /** The render shape for this particle system. */
+    private RenderShape renderShape = RenderShape.CIRCLE;
+
+    /** Line rendering: length multiplier (line length = velocity * multiplier). */
+    private float lineLengthMultiplier = 0.015f;
+
+    /** Line rendering: minimum line length. */
+    private float minLineLength = 5f;
+
+    /** Line rendering: maximum line length. */
+    private float maxLineLength = 25f;
+
+    /** Line rendering: stroke width. */
+    private float lineWidth = 1.5f;
+
     /**
      * Creates a new ParticleSystem with the specified name and maximum particle count.
      *
@@ -284,6 +304,120 @@ public class ParticleSystem extends GameObject {
     public ParticleSystem setGravity(float gravity) {
         this.gravity = gravity;
         return this;
+    }
+
+    // ==================== Render shape getters/setters ====================
+
+    /**
+     * Get the render shape for this particle system.
+     */
+    public RenderShape getRenderShape() {
+        return renderShape;
+    }
+
+    /**
+     * Set the render shape for this particle system.
+     */
+    public ParticleSystem setRenderShape(RenderShape shape) {
+        this.renderShape = shape;
+        return this;
+    }
+
+    /**
+     * Configure to render as lines (ideal for rain).
+     */
+    public ParticleSystem setRenderAsLines() {
+        this.renderShape = RenderShape.LINE;
+        return this;
+    }
+
+    /**
+     * Configure to render as circles (default).
+     */
+    public ParticleSystem setRenderAsCircles() {
+        this.renderShape = RenderShape.CIRCLE;
+        return this;
+    }
+
+    /**
+     * Configure to render as squares.
+     */
+    public ParticleSystem setRenderAsSquares() {
+        this.renderShape = RenderShape.SQUARE;
+        return this;
+    }
+
+    /**
+     * Get line length multiplier.
+     */
+    public float getLineLengthMultiplier() {
+        return lineLengthMultiplier;
+    }
+
+    /**
+     * Set line length multiplier (line length = velocity * multiplier).
+     */
+    public ParticleSystem setLineLengthMultiplier(float multiplier) {
+        this.lineLengthMultiplier = multiplier;
+        return this;
+    }
+
+    /**
+     * Get minimum line length.
+     */
+    public float getMinLineLength() {
+        return minLineLength;
+    }
+
+    /**
+     * Get maximum line length.
+     */
+    public float getMaxLineLength() {
+        return maxLineLength;
+    }
+
+    /**
+     * Set line length range.
+     */
+    public ParticleSystem setLineLengthRange(float min, float max) {
+        this.minLineLength = min;
+        this.maxLineLength = max;
+        return this;
+    }
+
+    /**
+     * Get line stroke width.
+     */
+    public float getLineWidth() {
+        return lineWidth;
+    }
+
+    /**
+     * Set line stroke width.
+     */
+    public ParticleSystem setLineWidth(float width) {
+        this.lineWidth = width;
+        return this;
+    }
+
+    /**
+     * Configure line rendering with presets for rain.
+     */
+    public ParticleSystem setLineRenderingForRain() {
+        return setRenderAsLines()
+                .setLineLengthMultiplier(0.015f)
+                .setLineLengthRange(5f, 25f)
+                .setLineWidth(1.5f);
+    }
+
+    /**
+     * Configure line rendering with presets for heavy rain/storm.
+     */
+    public ParticleSystem setLineRenderingForStorm() {
+        return setRenderAsLines()
+                .setLineLengthMultiplier(0.02f)
+                .setLineLengthRange(8f, 35f)
+                .setLineWidth(2f);
     }
 
     @Override

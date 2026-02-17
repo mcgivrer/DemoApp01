@@ -3,9 +3,11 @@ package core.behavior;
 import java.awt.event.KeyEvent;
 
 import core.behavior.particle.ExplosionEmitterBehavior;
+import core.behavior.particle.ParticlePhysicsBehavior;
 import core.entity.Entity;
 import core.entity.GameObject;
 import core.entity.ParticleSystem;
+import core.graphics.Layer;
 import core.scene.Scene;
 import core.utils.InputHandler;
 
@@ -67,20 +69,21 @@ public class PlayerInputBehavior implements Behavior<GameObject> {
         if (inputHandler.isKeyPressed(KeyEvent.VK_SPACE)) {
             // Space bar can be used for a special action, e.g., dash or shoot
             // Implement as needed, e.g., set a "dashing" state or trigger an attack
-            ParticleSystem explosion = Scene.currentScene.getEntityByName("explosion");
-            if (explosion != null) {
-                explosion.setPosition(entity.getX()+entity.getWidth()/2, entity.getY()+entity.getHeight()/2 );
-                ExplosionEmitterBehavior emitter = explosion.getBehavior(ExplosionEmitterBehavior.class);
-                if (emitter != null) {
-                    emitter.presetFireExplosion();
-                    emitter.reset();
-                    emitter.setSmokeDelay(0.1f)
-                    .setSmokeDuration(20f)
-                    .setSmokeParticleCount(250)
-                    .setSmokeSizeRange(8,
-                            24, 4);
-                    emitter.explode();
-                }
+            // Explosion
+            Layer midLayer = Scene.getActiveScene().getLayer("midground");
+            if (midLayer != null) { // Safety check
+                ParticleSystem explosion = new ParticleSystem("explosion", 100);
+                explosion.setPosition(entity.getX() + entity.getWidth() / 2, entity.getY() + entity.getHeight() / 2);
+                ExplosionEmitterBehavior emitter = new ExplosionEmitterBehavior().presetFireExplosion();
+                explosion.add(emitter);
+                explosion.add(new ParticlePhysicsBehavior());
+                emitter.presetFireExplosion();
+                emitter.reset();
+                emitter.setSmokeDelay(0.1f).setSmokeDuration(20f).setSmokeParticleCount(250).setSmokeSizeRange(8, 24,
+                        4);
+                emitter.explode();
+                explosion.setLayer(midLayer);
+                Scene.getActiveScene().addEntity(explosion);
             }
         }
     }

@@ -146,16 +146,6 @@ public class DemoScene extends Scene {
         fountain.setLayer(midLayer);
         addEntity(fountain);
 
-        // Explosion
-        ParticleSystem explosion = new ParticleSystem("explosion", 100);
-        explosion.setPosition(200, 200);
-        explosion.add(
-            new ExplosionEmitterBehavior()
-                .presetFireExplosion());
-        explosion.add(new ParticlePhysicsBehavior());
-        explosion.setLayer(midLayer);
-        addEntity(explosion);
-
         /// rainy day
         // Pluie orageuse
         ParticleSystem rain = new ParticleSystem("rain", 500);

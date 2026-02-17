@@ -3,11 +3,13 @@ package core.scene;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import core.App;
 import core.entity.Camera;
 import core.entity.Entity;
 import core.entity.ParticleSystem;
+import core.graphics.Layer;
 import core.utils.Configuration;
 
 /**
@@ -27,7 +29,7 @@ public class Scene extends Entity<Scene> {
 
     public static List<Scene> scenes = new ArrayList<>();
     public static Scene currentScene = null;
-    public List<Entity<?>> entities = new ArrayList<>();
+    public List<Entity<?>> entities = new CopyOnWriteArrayList<>();
 
     public Scene(String name) {
         super(name);
@@ -143,6 +145,11 @@ public class Scene extends Entity<Scene> {
     public ParticleSystem getEntityByName(String string) {
         return entities.stream().filter(e -> e.getName().equals(string)).filter(ParticleSystem.class::isInstance)
                 .map(ParticleSystem.class::cast).findFirst().orElse(null);
+    }
+
+    public Layer getLayer(String string) {
+        return entities.stream().filter(e -> e.getName().equals(string)).filter(Layer.class::isInstance)
+                .map(Layer.class::cast).findFirst().orElse(null);
     }
 
 }

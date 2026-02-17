@@ -42,6 +42,9 @@ public class ParticleSystem extends GameObject {
     /** Whether the emitter is currently emitting. */
     private boolean emitting = true;
 
+    /** Whether to automatically deactivate when exhausted (no active particles and not emitting). */
+    private boolean autoDeactivate = true;
+
     /** Default particle lifetime in seconds. */
     private float defaultLifetime = 2.0f;
 
@@ -145,7 +148,42 @@ public class ParticleSystem extends GameObject {
         for (Particle p : particles) {
             if (p.active) activeCount++;
         }
+        
+        // Auto-deactivate if exhausted
+        if (autoDeactivate && isExhausted()) {
+            setActive(false);
+        }
+        
         return activeCount;
+    }
+
+    /**
+     * Checks if the particle system is exhausted (no active particles and not emitting).
+     * Useful for one-shot effects like explosions.
+     *
+     * @return true if exhausted.
+     */
+    public boolean isExhausted() {
+        return activeCount == 0 && !emitting;
+    }
+
+    /**
+     * Whether auto-deactivation is enabled.
+     */
+    public boolean isAutoDeactivate() {
+        return autoDeactivate;
+    }
+
+    /**
+     * Enable or disable auto-deactivation when exhausted.
+     * Default is true.
+     *
+     * @param autoDeactivate true to auto-deactivate when no particles remain.
+     * @return this for chaining.
+     */
+    public ParticleSystem setAutoDeactivate(boolean autoDeactivate) {
+        this.autoDeactivate = autoDeactivate;
+        return this;
     }
 
     /**

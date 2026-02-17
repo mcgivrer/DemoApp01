@@ -128,8 +128,15 @@ public class ExplosionEmitterBehavior implements ParticleEmitterBehavior {
                     }
                 } else {
                     smokePhaseComplete = true;
+                    // Emission complete - mark system as not emitting
+                    system.setEmitting(false);
                 }
             }
+        }
+        
+        // If no smoke phase and explosion done, stop emitting
+        if (hasExploded && !enableSmoke) {
+            system.setEmitting(false);
         }
     }
     

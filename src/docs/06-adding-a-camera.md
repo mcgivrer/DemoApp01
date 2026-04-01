@@ -127,6 +127,10 @@ Scene
     ├── Entity (menus, effets spéciaux)
 ```
 
+### Visualisation des couches
+
+![DemoScene 3D Perspective View](illustrations/06-demo-scene-correct-3d.svg)
+
 ### Exemple d'utilisation
 
 ```java

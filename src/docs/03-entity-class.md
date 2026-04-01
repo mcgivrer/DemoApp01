@@ -129,6 +129,8 @@ Retourne des informations de débogage spécifiques à GameObject, incluant l'ID
 
 ## Diagramme de classes
 
+![Entity Class Hierarchy](illustrations/03-entity-class.svg)
+
 ```plantuml
 @startuml
 class Entity<T> {

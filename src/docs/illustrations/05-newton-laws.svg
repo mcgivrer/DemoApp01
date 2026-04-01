@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  <g font-family="Arial, sans-serif" font-size="14">
+    <!-- Title -->
+    <text x="400" y="30" text-anchor="middle" font-size="20" font-weight="bold">Newton's Laws in Physics Engine</text>
+    
+    <!-- First Law: Inertia -->
+    <rect x="50" y="60" width="300" height="180" rx="5" fill="#ffffff" stroke="#ccc" stroke-width="2"/>
+    <text x="200" y="85" text-anchor="middle" font-weight="bold">First Law: Inertia</text>
+    <text x="200" y="105" text-anchor="middle" font-size="12">An object in motion stays in motion</text>
+    <text x="200" y="125" text-anchor="middle" font-size="12">unless acted upon by a force</text>
+    
+    <!-- Illustration: Object moving with constant velocity -->
+    <rect x="100" y="140" width="40" height="20" fill="#2196f3" rx="3"/>
+    <text x="120" y="155" text-anchor="middle" font-size="10">v</text>
+    <path d="M 140 150 L 200 150" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <path d="M 200 150 L 260 150" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <text x="230" y="145" text-anchor="middle" font-size="12">Constant velocity</text>
+    
+    <!-- Second Law: F=ma -->
+    <rect x="450" y="60" width="300" height="180" rx="5" fill="#ffffff" stroke="#ccc" stroke-width="2"/>
+    <text x="600" y="85" text-anchor="middle" font-weight="bold">Second Law: F = ma</text>
+    <text x="600" y="105" text-anchor="middle" font-size="12">Force = mass × acceleration</text>
+    
+    <!-- Illustration: Force applied to object -->
+    <rect x="500" y="140" width="40" height="20" fill="#4caf50" rx="3"/>
+    <path d="M 540 150 L 600 150" stroke="#f44336" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="570" y="145" text-anchor="middle" font-size="12" fill="#f44336">Force (F)</text>
+    <text x="520" y="170" text-anchor="middle" font-size="12">a = F/m</text>
+    
+    <!-- Third Law: Action-Reaction -->
+    <rect x="50" y="280" width="700" height="180" rx="5" fill="#ffffff" stroke="#ccc" stroke-width="2"/>
+    <text x="400" y="305" text-anchor="middle" font-weight="bold">Third Law: Action-Reaction</text>
+    <text x="400" y="325" text-anchor="middle" font-size="12">For every action, there is an equal and opposite reaction</text>
+    
+    <!-- Illustration: Two objects colliding -->
+    <rect x="200" y="360" width="40" height="20" fill="#ff9800" rx="3"/>
+    <rect x="560" y="360" width="40" height="20" fill="#9c27b0" rx="3"/>
+    <path d="M 240 370 L 300 370" stroke="#f44336" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <path d="M 520 370 L 460 370" stroke="#2196f3" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="300" y="365" text-anchor="middle" font-size="12" fill="#f44336">Action Force</text>
+    <text x="460" y="365" text-anchor="middle" font-size="12" fill="#2196f3">Reaction Force</text>
+    
+    <!-- Implementation in Physics Engine -->
+    <rect x="50" y="500" width="700" height="250" rx="5" fill="#ffffff" stroke="#ccc" stroke-width="2"/>
+    <text x="400" y="525" text-anchor="middle" font-weight="bold">Implementation in Physics Engine</text>
+    
+    <!-- PhysicsEngine box -->
+    <rect x="100" y="550" width="600" height="150" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+    <text x="400" y="575" text-anchor="middle" font-weight="bold">PhysicsEngine</text>
+    
+    <!-- Components -->
+    <rect x="150" y="590" width="120" height="40" rx="3" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+    <text x="210" y="610" text-anchor="middle" font-size="12">GravityBehavior</text>
+    
+    <rect x="300" y="590" width="120" height="40" rx="3" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+    <text x="360" y="610" text-anchor="middle" font-size="12">VelocityBehavior</text>
+    
+    <rect x="450" y="590" width="120" height="40" rx="3" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+    <text x="510" y="610" text-anchor="middle" font-size="12">CollisionBehavior</text>
+    
+    <!-- Formulas -->
+    <text x="150" y="650" text-anchor="middle" font-size="12">vy += gravity × Δt</text>
+    <text x="350" y="650" text-anchor="middle" font-size="12">position += velocity × Δt</text>
+    <text x="550" y="650" text-anchor="middle" font-size="12">velocity += impulse × Δt</text>
+    
+    <!-- Equations -->
+    <text x="400" y="700" text-anchor="middle" font-size="14" font-weight="bold">Key Equations:</text>
+    <text x="200" y="720" text-anchor="middle" font-size="12">v = u + a×t</text>
+    <text x="400" y="720" text-anchor="middle" font-size="12">s = ut + ½a×t²</text>
+    <text x="600" y="720" text-anchor="middle" font-size="12">F = m×a</text>
+  </g>
+  
+  <!-- Arrowhead marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

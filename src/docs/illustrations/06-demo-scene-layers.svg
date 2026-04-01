@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  <g font-family="Arial, sans-serif" font-size="14">
+    <!-- Title -->
+    <text x="400" y="30" text-anchor="middle" font-size="20" font-weight="bold">DemoScene Layer Composition</text>
+    <text x="400" y="50" text-anchor="middle" font-size="14">Isometric View of Layer Stacking</text>
+    
+    <!-- Isometric perspective background -->
+    <polygon points="100,150 700,150 600,500 200,500" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" opacity="0.8"/>
+    
+    <!-- BACKGROUND Layer (bottom) -->
+    <rect x="150" y="400" width="500" height="80" rx="5" fill="#b3e5fc" stroke="#03a9f4" stroke-width="2" opacity="0.9"/>
+    <text x="400" y="440" text-anchor="middle" font-weight="bold" fill="#01579b">BACKGROUND Layer</text>
+    <text x="400" y="460" text-anchor="middle" font-size="12" fill="#01579b">Sky, distant mountains</text>
+    
+    <!-- MIDGROUND Layer -->
+    <rect x="200" y="320" width="400" height="80" rx="5" fill="#c8e6c9" stroke="#4caf50" stroke-width="2" opacity="0.85"/>
+    <text x="400" y="360" text-anchor="middle" font-weight="bold" fill="#2e7d32">MIDGROUND Layer</text>
+    <text x="400" y="380" text-anchor="middle" font-size="12" fill="#2e7d32">Player, enemies, main objects</text>
+    
+    <!-- FOREGROUND Layer -->
+    <rect x="250" y="240" width="300" height="80" rx="5" fill="#a5d6a7" stroke="#66bb6a" stroke-width="2" opacity="0.8"/>
+    <text x="400" y="280" text-anchor="middle" font-weight="bold" fill="#388e3c">FOREGROUND Layer</text>
+    <text x="400" y="300" text-anchor="middle" font-size="12" fill="#388e3c">Close objects, obstacles</text>
+    
+    <!-- UI Layer -->
+    <rect x="300" y="160" width="200" height="60" rx="5" fill="#ffebee" stroke="#f44336" stroke-width="2" opacity="0.95"/>
+    <text x="400" y="190" text-anchor="middle" font-weight="bold" fill="#c62828">UI Layer</text>
+    <text x="400" y="210" text-anchor="middle" font-size="12" fill="#c62828">HUD, health bars, score</text>
+    
+    <!-- Camera position indicator -->
+    <circle cx="550" cy="200" r="20" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+    <text x="550" y="205" text-anchor="middle" font-weight="bold" fill="#e65100">Camera</text>
+    <path d="M 550 220 L 550 280" stroke="#ff9800" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="550" y="300" text-anchor="middle" font-size="12" fill="#e65100">View Direction</text>
+    
+    <!-- Sample entities in layers -->
+    <!-- BACKGROUND entities -->
+    <rect x="200" y="420" width="30" height="20" fill="#81d4fa" opacity="0.7"/>
+    <text x="215" y="435" font-size="10">Cloud</text>
+    
+    <rect x="350" y="430" width="40" height="15" fill="#80cbc4" opacity="0.7"/>
+    <text x="370" y="443" font-size="10">Mountain</text>
+    
+    <!-- MIDGROUND entities -->
+    <rect x="250" y="340" width="25" height="25" fill="#4caf50" opacity="0.8"/>
+    <text x="262" y="358" font-size="10">Player</text>
+    
+    <rect x="450" y="350" width="20" height="20" fill="#f44336" opacity="0.8"/>
+    <text x="460" y="365" font-size="10">Enemy</text>
+    
+    <!-- FOREGROUND entities -->
+    <rect x="300" y="260" width="35" height="35" fill="#8d6e63" opacity="0.85"/>
+    <text x="317" y="285" font-size="10">Rock</text>
+    
+    <rect x="450" y="270" width="30" height="25" fill="#795548" opacity="0.85"/>
+    <text x="465" y="288" font-size="10">Tree</text>
+    
+    <!-- UI elements -->
+    <rect x="350" y="180" width="80" height="15" fill="#ef9a9a" opacity="0.9"/>
+    <text x="390" y="192" font-size="10">Health: 100%</text>
+    
+    <rect x="350" y="200" width="60" height="12" fill="#ffe0b2" opacity="0.9"/>
+    <text x="380" y="210" font-size="10">Score: 1200</text>
+    
+    <!-- Legend -->
+    <rect x="50" y="50" width="250" height="100" rx="5" fill="#ffffff" stroke="#ccc" stroke-width="1"/>
+    <text x="175" y="70" text-anchor="middle" font-weight="bold">Layer Properties</text>
+    
+    <text x="100" y="90" text-anchor="start" font-size="11">• BACKGROUND: Fixed</text>
+    <text x="100" y="110" text-anchor="start" font-size="11">• MIDGROUND: Camera</text>
+    <text x="100" y="130" text-anchor="start" font-size="11">• FOREGROUND: Camera</text>
+    <text x="100" y="150" text-anchor="start" font-size="11">• UI: Screen-space</text>
+    
+    <!-- Depth indication -->
+    <path d="M 650 150 L 650 500" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="650" y="145" text-anchor="middle" font-size="12" font-weight="bold">Depth</text>
+    <text x="650" y="165" text-anchor="middle" font-size="10">(z-axis)</text>
+    
+    <text x="650" y="180" text-anchor="middle" font-size="10">Near</text>
+    <text x="650" y="490" text-anchor="middle" font-size="10">Far</text>
+  </g>
+  
+  <!-- Arrowhead marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

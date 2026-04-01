@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  <g font-family="Arial, sans-serif" font-size="14">
+    <!-- Title -->
+    <text x="400" y="30" text-anchor="middle" font-size="20" font-weight="bold">Application Architecture</text>
+    
+    <!-- App Class (Main) -->
+    <rect x="350" y="50" width="100" height="60" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+    <text x="400" y="80" text-anchor="middle" font-weight="bold">App</text>
+    <text x="400" y="100" text-anchor="middle" font-size="12">Main Coordinator</text>
+    
+    <!-- Services (inheriting from Service) -->
+    <rect x="200" y="150" width="120" height="50" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="260" y="175" text-anchor="middle" font-weight="bold">PhysicsEngine</text>
+    
+    <rect x="350" y="150" width="120" height="50" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="410" y="175" text-anchor="middle" font-weight="bold">Renderer</text>
+    
+    <rect x="500" y="150" width="120" height="50" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="560" y="175" text-anchor="middle" font-weight="bold">InputHandler</text>
+    
+    <!-- Service Base Class -->
+    <rect x="350" y="220" width="100" height="40" rx="5" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+    <text x="400" y="245" text-anchor="middle" font-weight="bold">Service</text>
+    
+    <!-- Scene -->
+    <rect x="350" y="300" width="100" height="50" rx="5" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+    <text x="400" y="325" text-anchor="middle" font-weight="bold">Scene</text>
+    
+    <!-- Entities -->
+    <rect x="250" y="380" width="100" height="50" rx="5" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
+    <text x="300" y="405" text-anchor="middle" font-weight="bold">Entity</text>
+    
+    <rect x="450" y="380" width="100" height="50" rx="5" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2"/>
+    <text x="500" y="405" text-anchor="middle" font-weight="bold">GameObject</text>
+    
+    <!-- Arrows showing dependencies and inheritance -->
+    
+    <!-- App creates/instantiates services -->
+    <path d="M 400 110 L 260 150" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <text x="330" y="120" font-size="10" fill="#666">creates</text>
+    
+    <path d="M 400 110 L 410 150" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <text x="405" y="120" font-size="10" fill="#666">creates</text>
+    
+    <path d="M 400 110 L 560 150" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <text x="480" y="120" font-size="10" fill="#666">creates</text>
+    
+    <!-- Services inherit from Service base class -->
+    <path d="M 260 200 L 400 220" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+    <text x="330" y="210" font-size="10" fill="#666">extends</text>
+    
+    <path d="M 410 200 L 400 220" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+    <text x="405" y="210" font-size="10" fill="#666">extends</text>
+    
+    <path d="M 560 200 L 400 220" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+    <text x="480" y="210" font-size="10" fill="#666">extends</text>
+    
+    <!-- App manages Scene -->
+    <path d="M 400 200 L 400 300" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <text x="410" y="250" font-size="10" fill="#666">manages</text>
+    
+    <!-- Scene contains Entities -->
+    <path d="M 350 350 L 300 380" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <text x="325" y="365" font-size="10" fill="#666">contains</text>
+    
+    <path d="M 450 350 L 500 380" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <text x="475" y="365" font-size="10" fill="#666">contains</text>
+    
+    <!-- GameObject extends Entity -->
+    <path d="M 500 430 L 300 430" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+    <text x="400" y="440" font-size="10" fill="#666">extends</text>
+    
+    <!-- Services depend on App -->
+    <path d="M 260 180 L 390 110" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)" stroke-dasharray="3,3"/>
+    <text x="325" y="140" font-size="10" fill="#666">depends on</text>
+    
+    <path d="M 410 180 L 400 110" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)" stroke-dasharray="3,3"/>
+    <text x="405" y="140" font-size="10" fill="#666">depends on</text>
+    
+    <!-- Renderer depends on InputHandler -->
+    <path d="M 410 180 L 550 180" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)" stroke-dasharray="3,3"/>
+    <text x="480" y="170" font-size="10" fill="#666">uses</text>
+    
+    <!-- Legend -->
+    <rect x="50" y="450" width="250" height="120" rx="5" fill="#ffffff" stroke="#ccc" stroke-width="1"/>
+    <text x="175" y="470" text-anchor="middle" font-weight="bold">Legend</text>
+    
+    <path d="M 70 490 L 120 490" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <text x="140" y="495" font-size="11">Solid: Instantiates/Creates</text>
+    
+    <path d="M 70 510 L 120 510" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+    <text x="140" y="515" font-size="11">Dashed: Inheritance</text>
+    
+    <path d="M 70 530 L 120 530" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)" stroke-dasharray="3,3"/>
+    <text x="140" y="535" font-size="11">Dotted: Dependency</text>
+    
+    <!-- Additional Notes -->
+    <rect x="550" y="450" width="200" height="100" rx="5" fill="#fff3e0" stroke="#ff9800" stroke-width="1"/>
+    <text x="650" y="470" text-anchor="middle" font-weight="bold">Key Relationships</text>
+    <text x="650" y="490" text-anchor="middle" font-size="11">• App → Services: Creation</text>
+    <text x="650" y="510" text-anchor="middle" font-size="11">• Services → Service: Inheritance</text>
+    <text x="650" y="530" text-anchor="middle" font-size="11">• Services → App: Dependency</text>
+  </g>
+  
+  <!-- Arrowhead marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

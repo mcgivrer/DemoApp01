@@ -8,6 +8,79 @@ La classe `App` constitue le point d'entrée et le coordinateur central de l'app
 
 L'application suit une architecture modulaire organisée autour d'un moteur de jeu classique avec une boucle principale (game loop). Les composants clés sont gérés par la classe `App` qui assure leur coordination.
 
+### Diagramme d'architecture
+
+```plantuml
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam classBackgroundColor #E8F4FD
+skinparam classBorderColor #2196F3
+
+class App {
+    + {static} ResourceBundle messages
+    + {static} int debug
+    + {static} AppMode mode
+    - PhysicsEngine physicsEngine
+    - Renderer renderer
+    - InputHandler inputHandler
+    + void run(String[] args)
+    + void initialize(String[] args)
+}
+
+class Service {
+    + App app
+    + boolean active
+    + void initialize(Properties config)
+    + void update(Scene scene, float deltaTime, Map stats)
+}
+
+class PhysicsEngine extends Service {
+    + void update(Scene scene, float deltaTime, Map stats)
+}
+
+class Renderer extends Service {
+    + InputHandler inputHandler
+    + void update(Scene scene, float deltaTime, Map stats)
+}
+
+class InputHandler {
+    + boolean[] keys
+    + void keyPressed(KeyEvent key)
+    + void keyReleased(KeyEvent key)
+}
+
+class Scene {
+    + List<Entity<?>> entities
+    + void load(App app)
+    + void update(float deltaTime)
+}
+
+' Relationships
+App "1" *-- "1" PhysicsEngine : creates >
+App "1" *-- "1" Renderer : creates >
+App "1" *-- "1" InputHandler : creates >
+App "1" --> "1" Scene : manages >
+
+Renderer "1" --> "1" InputHandler : uses >
+
+PhysicsEngine -up-|> Service
+Renderer -up-|> Service
+
+Scene "1" *-- "*" Entity : contains >
+
+note right of App::physicsEngine
+  App instantiates and manages
+  all service components
+end note
+
+note right of Service
+  Base class for all
+  modular services
+end note
+
+@enduml
+```
+
 ### Diagramme de packages
 
 ```plantuml

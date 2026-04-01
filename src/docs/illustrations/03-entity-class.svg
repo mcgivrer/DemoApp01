@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  <g font-family="Arial, sans-serif" font-size="14">
+    <!-- Title -->
+    <text x="400" y="30" text-anchor="middle" font-size="20" font-weight="bold">Entity Class Hierarchy</text>
+    
+    <!-- Entity Class -->
+    <rect x="300" y="60" width="200" height="80" rx="5" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+    <text x="400" y="90" text-anchor="middle" font-weight="bold">Entity&lt;T&gt;</text>
+    <text x="400" y="110" text-anchor="middle" font-size="12">Base class for all game objects</text>
+    <text x="400" y="130" text-anchor="middle" font-size="12">Generic for method chaining</text>
+    
+    <!-- GameObject Class -->
+    <rect x="250" y="200" width="160" height="70" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="330" y="230" text-anchor="middle" font-weight="bold">GameObject</text>
+    <text x="330" y="250" text-anchor="middle" font-size="12">Extends Entity</text>
+    <text x="330" y="270" text-anchor="middle" font-size="12">Adds sprite and colors</text>
+    
+    <!-- Camera Class -->
+    <rect x="450" y="200" width="160" height="70" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="530" y="230" text-anchor="middle" font-weight="bold">Camera</text>
+    <text x="530" y="250" text-anchor="middle" font-size="12">Extends Entity</text>
+    <text x="530" y="270" text-anchor="middle" font-size="12">View management</text>
+    
+    <!-- World Class -->
+    <rect x="350" y="320" width="160" height="70" rx="5" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="430" y="350" text-anchor="middle" font-weight="bold">World</text>
+    <text x="430" y="370" text-anchor="middle" font-size="12">Extends Entity</text>
+    <text x="430" y="390" text-anchor="middle" font-size="12">Physics environment</text>
+    
+    <!-- Arrows -->
+    <path d="M 400 140 L 330 200" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <path d="M 400 140 L 530 200" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <path d="M 400 140 L 430 320" stroke="#666" stroke-width="1" marker-end="url(#arrowhead)"/>
+    
+    <!-- Properties -->
+    <rect x="50" y="400" width="200" height="80" rx="5" fill="#ffffff" stroke="#ccc" stroke-width="1"/>
+    <text x="150" y="420" text-anchor="middle" font-weight="bold">Entity Properties</text>
+    <text x="150" y="440" text-anchor="middle" font-size="12">- id, name</text>
+    <text x="150" y="460" text-anchor="middle" font-size="12">- position, size</text>
+    <text x="150" y="480" text-anchor="middle" font-size="12">- velocity, angle</text>
+    
+    <rect x="300" y="400" width="200" height="80" rx="5" fill="#ffffff" stroke="#ccc" stroke-width="1"/>
+    <text x="400" y="420" text-anchor="middle" font-weight="bold">GameObject Properties</text>
+    <text x="400" y="440" text-anchor="middle" font-size="12">- sprite (BufferedImage)</text>
+    <text x="400" y="460" text-anchor="middle" font-size="12">- fillColor, edgeColor</text>
+    
+    <rect x="550" y="400" width="200" height="80" rx="5" fill="#ffffff" stroke="#ccc" stroke-width="1"/>
+    <text x="650" y="420" text-anchor="middle" font-weight="bold">Common Methods</text>
+    <text x="650" y="440" text-anchor="middle" font-size="12">- setPosition(), setSize()</text>
+    <text x="650" y="460" text-anchor="middle" font-size="12">- add(Behavior)</text>
+    <text x="650" y="480" text-anchor="middle" font-size="12">- getDebugInfo()</text>
+  </g>
+  
+  <!-- Arrowhead marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

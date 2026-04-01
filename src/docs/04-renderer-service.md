@@ -93,6 +93,10 @@ Le renderer utilise une architecture modulaire avec des plugins :
 - **Translation caméra** : Appliquée seulement aux couches MIDGROUND et FOREGROUND
 - **Tri des entités** : Par z-index de couche pour l'ordre de rendu
 
+### Système de couches
+
+![Renderer Layer System](illustrations/04-renderer-layers.svg)
+
 ## Mode débogage
 
 En mode DEVELOPMENT avec debug > 0 :

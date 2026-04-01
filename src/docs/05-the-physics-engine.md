@@ -4,6 +4,30 @@
 
 Le `PhysicsEngine` est un service responsable de la simulation physique des entités dans une scène. Il hérite de `Service` et applique les comportements physiques aux entités actives, gérant ainsi le mouvement, les collisions et les interactions basées sur les lois physiques simplifiées.
 
+### Interactions entre les composants physiques
+
+Le moteur physique repose sur trois composants principaux qui interagissent pour simuler le comportement des objets :
+
+```mermaid
+graph TD
+    A[PhysicsEngine] -->|applique| B[Behavior]
+    B -->|modifie| C[Entity]
+    C -->|utilise| D[Material]
+    D -->|influence| B
+```
+
+**Flux d'interaction :**
+1. **PhysicsEngine** : Orchestre la simulation en appliquant les comportements
+2. **Behavior** : Contient la logique physique (gravité, vitesse, collisions)
+3. **Entity** : Représente les objets physiques avec position, vitesse et propriétés
+4. **Material** : Définit les propriétés physiques (friction, restitution) qui influencent les comportements
+
+**Exemple de cycle :**
+- Le `PhysicsEngine` appelle `GravityBehavior.update()` sur une `Entity`
+- Le `GravityBehavior` modifie la vitesse de l'`Entity` en fonction de sa `Material`
+- Le `VelocityBehavior` met à jour la position en fonction de la nouvelle vitesse
+- En cas de collision, le `CollisionBehavior` utilise les propriétés du `Material` pour calculer la réponse
+
 ## Architecture de la classe PhysicsEngine
 
 ### Héritage et dépendances
@@ -45,6 +69,33 @@ Libère les ressources du moteur physique (actuellement minimal).
 ### Classe World
 
 La classe `World` représente un environnement physique contenant des entités. Elle hérite de `Entity<World>` et définit les propriétés globales du monde physique.
+
+### Record Material
+
+Le `Material` est un record immuable définissant les propriétés physiques des entités pour les interactions.
+
+#### Matériaux prédéfinis
+
+| Matériau  | Friction | Restitution | Description                              |
+| --------- | -------- | ----------- | ---------------------------------------- |
+| DEFAULT   | 0.1      | 0.001       | Matériau par défaut, légèrement glissant |
+| ICE       | 0.01     | 0.0         | Très glissant, pas de rebond             |
+| RUBBER    | 0.9      | 0.8         | Très adhérent, très rebondissant         |
+| WOOD      | 0.7      | 0.3         | Adhérent moyen, rebond modéré            |
+| STEEL     | 0.2      | 0.1         | Peu adhérent, peu rebondissant           |
+| WATER     | 0.05     | 0.0         | Très fluide, pas de rebond               |
+| SUPERBALL | 0.002    | 0.1         | Très glissant, rebond extrême            |
+| STONE     | 0.6      | 0.2         | Adhérent, rebond faible                  |
+
+#### Propriétés des matériaux
+
+- **Friction** (0.0 à 1.0) : Coefficient de frottement
+  - 0.0 = pas de friction (glissement parfait)
+  - 1.0 = friction maximale (arrêt immédiat)
+
+- **Restitution** (0.0 à 1.0) : Coefficient de rebond
+  - 0.0 = pas de rebond (absorption totale)
+  - 1.0 = rebond parfait (conservation d'énergie)
 
 #### Attributs spécifiques
 
@@ -164,9 +215,13 @@ PhysicsEngine --> Scene : processes
 
 Le moteur physique utilise une implémentation simplifiée des lois de Newton pour simuler le mouvement des `GameObject`. Contrairement à une simulation physique complète, le `PhysicsEngine` ne calcule pas explicitement l'accélération (F = ma). Au lieu de cela, les comportements appliquent directement des modifications de vitesse et de position.
 
+### Les trois lois de Newton
+
+![Newton's Laws in Physics Engine](illustrations/05-newton-laws.svg)
+
 ### Intégration temporelle simplifiée
 
-- **Déplacement** : `position = position + vitesse * deltaTime`
+- **Déplacement** : $${position} = {position} + {vitesse} 	imes \Delta t$$
 - **Modification de vitesse** : Via comportements (gravité, frottement, etc.)
 
 ### Rôle du Material dans les interactions
@@ -174,16 +229,20 @@ Le moteur physique utilise une implémentation simplifiée des lois de Newton po
 #### Coefficient de friction
 
 La friction ralentit progressivement le mouvement :
-- `vitesse = vitesse * (1 - friction * deltaTime)`
+- $${vitesse}_{nouvelle} = {vitesse} 	imes (1 - {friction} 	imes \Delta t)$$
 - Un matériau comme `ICE` (friction 0.1) ralentit peu, permettant un glissement prolongé
 - Un matériau comme `RUBBER` (friction 0.9) arrête rapidement le mouvement
 
 #### Coefficient de restitution
 
 La restitution gère les rebonds lors des collisions :
-- Lors d'une collision : `vitesse = -vitesse * restitution`
+- Lors d'une collision : $${vitesse}_{après} = -{vitesse}_{avant} 	imes {restitution}$$
 - `STEEL` (restitution 0.1) : rebond faible, énergie dissipée
 - `SUPERBALL` (restitution 0.9) : rebond élevé, préservation de l'énergie
+
+### Diagramme de séquence
+
+![Physics Engine Sequence Diagram](illustrations/05-physics-sequence.svg)
 
 ### Exemple d'utilisation
 
